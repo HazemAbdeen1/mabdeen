@@ -1,12 +1,679 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
+    <!-- SEO & Metadata for search engines and social media -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>معمل الشام للكيماويات</title>
+    <title>معمل الشام للكيماويات | الفردوس - الأفق - ماف شيك - جونيور</title>
+    <!-- Meta description helps search engines understand what the page is about -->
+    <meta name="description" content="معمل الشام للكيماويات، رواد صناعة الدهانات، الألكيدات، المذيبات، وأحبار الطباعة في سوريا. علاماتنا التجارية: الفردوس، الأفق، ماف شيك، وجونيور.">
+    <!-- Meta keywords are used by some search engines to help rank the page -->
+    <meta name="keywords" content="معمل الشام للكيماويات، الفردوس، الأفق، ماف شيك، جونيور، دهانات، مذيبات، أحبار طباعة، سوريا، كيماويات، al firdoss, al ofok, junior, maf chique, paints, inks, solvents, syria">
+    <!-- Meta author for authorship attribution -->
+    <meta name="author" content="Sham Chemical Laboratory">
+    
+    <!-- Link to Tailwind CSS framework for responsive design -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Font for a clean and modern look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #f0f4f8; /* Light gray background */
+        }
+        .main-gradient {
+            background: linear-gradient(to right, #264765, #349bca);
+        }
+    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-lang-ar="معمل الشام للكيماويات - Mustafa Abdeen & Partners"
+           data-lang-en="Al-Cham Chemical Plant - Mustafa Abdeen & Partners"
+           data-lang-tr="Al-Cham Kimya Fabrikası - Mustafa Abdeen & Partners"
+           data-lang-fr="Usine chimique Al-Cham - Mustafa Abdeen & Partners">
+        معمل الشام للكيماويات - Mustafa Abdeen & Partners
+    </title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- Google Font - Inter -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            color: #264765;
+        }
+        .bg-main {
+            background-color: #349bca;
+        }
+        .bg-secondary {
+            background-color: #264765;
+        }
+        .text-main {
+            color: #349bca;
+        }
+        .text-secondary {
+            color: #264765;
+        }
+        .border-silver {
+            border-color: #c0c0c0;
+        }
+        .fill-silver {
+            fill: #c0c0c0;
+        }
+        /* Style for the language selector icon */
+        .language-icon::before {
+            content: "\f279"; /* Map icon */
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            margin-left: 0.5rem;
+        }
+        .modal {
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+            display: flex; /* Keep flex for layout, control visibility via opacity */
+        }
+        .modal.is-open {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            max-width: 90%;
+            max-height: 90%;
+            overflow-y: auto;
+            position: relative;
+            text-align: right;
+            transition: transform 0.3s ease-in-out;
+            transform: translateY(20px);
+        }
+        .modal.is-open .modal-content {
+            transform: translateY(0);
+        }
+        .close-button {
+            color: #aaa;
+            position: absolute;
+            top: 0.5rem;
+            right: 1.5rem;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        .close-button:hover,
+        .close-button:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        /* Text alignment for RTL languages */
+        html[dir="rtl"] .ltr-text-align {
+            text-align: right;
+        }
+        /* Text alignment for LTR languages */
+        html[dir="ltr"] .ltr-text-align {
+            text-align: left;
+        }
+    </style>
 </head>
-<body>
-    <h1>مرحباً بكم في موقع معمل الشام للكيماويات!</h1>
-    <p>هذه هي الصفحة الرئيسية لموقعنا. سنقوم بتصميمها قريباً.</p>
+<body class="bg-gray-50 text-gray-800">
+
+    <!-- Header & Navigation -->
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center">
+            <!-- Main Logo -->
+            <!-- Note: Replace the placeholder image with the actual logo from your 'IMG' folder -->
+            <div class="flex items-center space-x-2 rtl:space-x-reverse">
+                <img src="https://placehold.co/150x60/c0c0c0/264765?text=Logo.jpg" alt="Mustafa Abdeen & Partners Logo" class="h-16 w-auto rounded-full" data-image-name="Logo.jpg">
+            </div>
+
+            <!-- Language Selector and Navigation -->
+            <div class="flex items-center space-x-4 rtl:space-x-reverse mt-4 sm:mt-0">
+                <!-- Language Selector with icon -->
+                <div class="relative inline-block text-gray-700">
+                    <select id="language-selector" class="rounded-full px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-main language-icon cursor-pointer">
+                        <option value="ar">العربية</option>
+                        <option value="en">English</option>
+                        <option value="tr">Türkçe</option>
+                        <option value="fr">Français</option>
+                    </select>
+                </div>
+                <!-- Navigation Menu -->
+                <nav class="hidden md:flex space-x-6 rtl:space-x-reverse text-lg font-medium">
+                    <a href="#about" class="hover:text-main transition-colors duration-300" data-lang-ar="عن الشركة" data-lang-en="About Us" data-lang-tr="Hakkımızda" data-lang-fr="À propos">عن الشركة</a>
+                    <a href="#products" class="hover:text-main transition-colors duration-300" data-lang-ar="المنتجات" data-lang-en="Products" data-lang-tr="Ürünler" data-lang-fr="Produits">المنتجات</a>
+                    <a href="#brands" class="hover:text-main transition-colors duration-300" data-lang-ar="الماركات" data-lang-en="Brands" data-lang-tr="Markalar" data-lang-fr="Marques">الماركات</a>
+                    <a href="#contact" class="hover:text-main transition-colors duration-300" data-lang-ar="تواصل معنا" data-lang-en="Contact Us" data-lang-tr="Bize Ulaşın" data-lang-fr="Contactez-nous">تواصل معنا</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="py-12">
+        <!-- 1. Hero Section -->
+        <section id="home" class="relative overflow-hidden min-h-[60vh] md:min-h-[80vh] flex items-center justify-center text-center text-white py-16 px-4" style="background-color: #264765;">
+            <!-- Note: Replace the placeholder image with the actual image from your 'IMG' folder -->
+            <div class="absolute inset-0 z-0 opacity-25" style="background-image: url('https://placehold.co/1920x1080/000000/FFFFFF?text=paintdrop.jpg'); background-size: cover; background-position: center;"></div>
+            
+            <div class="relative z-10 max-w-4xl mx-auto space-y-6">
+                <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight" data-lang-ar="خبرة عريقة منذ 1954، وجودة اليوم لدهانات الغد" data-lang-en="Rich Experience Since 1954, Today's Quality for Tomorrow's Paints" data-lang-tr="1954'ten beri zengin deneyim, Yarının Boyaları için Bugünün Kalitesi" data-lang-fr="Une riche expérience depuis 1954, la qualité d'aujourd'hui pour les peintures de demain">
+                    خبرة عريقة منذ 1954، وجودة اليوم لدهانات الغد
+                </h1>
+                <p class="text-lg sm:text-xl md:text-2xl font-light" data-lang-ar="معمل الشام للكيماويات: رواد صناعة الدهانات والألكيدات." data-lang-en="Al-Cham Chemical Plant: Pioneers in the Paints and Alkyds Industry." data-lang-tr="Al-Cham Kimya Fabrikası: Boya ve Alkid Endüstrisinin Öncüleri." data-lang-fr="Al-Cham Chemical Plant : Pionniers de l'industrie des peintures et des alkydes.">
+                    معمل الشام للكيماويات: رواد صناعة الدهانات والألكيدات.
+                </p>
+                <a href="#products" class="inline-block bg-main hover:bg-opacity-80 transition-all duration-300 text-white font-bold py-3 px-8 rounded-full shadow-lg transform hover:scale-105" data-lang-ar="اكتشف منتجاتنا" data-lang-en="Discover Our Products" data-lang-tr="Ürünlerimizi Keşfedin" data-lang-fr="Découvrez nos produits">
+                    اكتشف منتجاتنا
+                </a>
+            </div>
+        </section>
+        
+        <!-- 2. About Us Section -->
+        <section id="about" class="container mx-auto px-4 py-16">
+            <div class="flex flex-col lg:flex-row-reverse items-center lg:space-x-12 rtl:lg:space-x-reverse space-y-8 lg:space-y-0">
+                <!-- Text Content -->
+                <div class="w-full lg:w-1/2 space-y-6">
+                    <h2 class="text-4xl font-bold text-center lg:text-right" data-lang-ar="تاريخ من الجودة والريادة" data-lang-en="A History of Quality and Leadership" data-lang-tr="Kalite ve Liderlik Tarihi" data-lang-fr="Une histoire de qualité et de leadership">
+                        تاريخ من الجودة والريادة
+                    </h2>
+                    <p class="text-lg leading-relaxed text-center lg:text-right" data-lang-ar="تأسس معمل الشام للكيماويات في عام 1954، ومنذ ذلك الحين ونحن نكرس خبرتنا لصناعة مواد الطلاء. بعد توقف، عدنا بقوة لتقديم حلول مبتكرة وموثوقة تلبي احتياجات سوق اليوم." data-lang-en="Al-Cham Chemical Plant was established in 1954, and since then, we have dedicated our expertise to the paint industry. After a break, we have returned strongly to provide innovative and reliable solutions that meet the needs of today's market." data-lang-tr="Al-Cham Kimya Fabrikası 1954 yılında kuruldu ve o zamandan beri boya malzemeleri endüstrisine olan uzmanlığımızı adadık. Bir aradan sonra, bugünün pazar ihtiyaçlarını karşılayan yenilikçi ve güvenilir çözümler sunmak için güçlü bir şekilde geri döndük." data-lang-fr="L'usine chimique Al-Cham a été fondée en 1954 et depuis lors, nous avons consacré notre expertise à l'industrie de la peinture. Après une pause, nous sommes revenus en force pour offrir des solutions innovantes et fiables qui répondent aux besoins du marché actuel.">
+                        تأسس معمل الشام للكيماويات في عام 1954، ومنذ ذلك الحين ونحن نكرس خبرتنا لصناعة مواد الطلاء. بعد توقف، عدنا بقوة لتقديم حلول مبتكرة وموثوقة تلبي احتياجات سوق اليوم.
+                    </p>
+                    <div class="text-center lg:text-right">
+                        <button onclick="openModal('about-modal')" class="inline-block bg-secondary text-white font-bold py-3 px-8 rounded-full hover:bg-opacity-80 transition-all duration-300" data-lang-ar="اقرأ المزيد عن قصتنا" data-lang-en="Read More About Our Story" data-lang-tr="Hikayemiz Hakkında Daha Fazla Oku" data-lang-fr="En savoir plus sur notre histoire">
+                            اقرأ المزيد عن قصتنا
+                        </button>
+                    </div>
+                </div>
+                <!-- Images (with responsive sizing) -->
+                <div class="w-full lg:w-1/2 flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4 rtl:sm:space-x-reverse">
+                    <!-- Note: Replace the placeholder images with the actual images from your 'IMG' folder -->
+                    <img src="https://placehold.co/400x300/c0c0c0/264765?text=labpaint.jpg" alt="Lab counter for paint analysis" class="w-full sm:w-1/2 rounded-lg shadow-lg" data-image-name="labpaint.jpg">
+                    <!-- Small, low-quality image as requested -->
+                    <img src="https://placehold.co/250x180/c0c0c0/264765?text=Instruments.jpg" alt="Lab and Alkyd reactor" class="w-full sm:w-1/2 rounded-lg shadow-lg max-w-[300px]" data-image-name="Instruments.jpg">
+                </div>
+            </div>
+        </section>
+
+        <!-- About Us Modal -->
+        <div id="about-modal" class="modal">
+            <div class="modal-content ltr-text-align">
+                <span onclick="closeModal('about-modal')" class="close-button">&times;</span>
+                <h3 class="text-3xl font-bold mb-4 text-center" data-lang-ar="تاريخ الشركة" data-lang-en="Company History" data-lang-tr="Şirket Tarihi" data-lang-fr="Histoire de l'entreprise">
+                    تاريخ الشركة
+                </h3>
+                <p class="text-lg leading-relaxed whitespace-pre-wrap" data-lang-ar="منذ تأسيسها عام 1954، رسخت شركة مصطفى عابدين وشركاه، صاحبة معمل الشام للكيماويات، مكانتها كشركة رائدة في مجال صناعة الدهانات والألكيدات. بدأنا رحلتنا بإنتاج مجموعة متنوعة من الدهانات، معتمدين على ورنيشاتنا الخاصة بالإضافة إلى أفضل الألكيدات الأوروبية كمواد رابطة.
+في عام 1970، خطونا خطوة هامة نحو التطور بإنشاء وحدة حديثة ومتخصصة لإنتاج الألكيدات والبوليمرات عالية الجودة، ليس فقط لتلبية نمونا السريع، بل أيضاً لتزويد كبار مصنعي الدهانات بمنتجاتنا المميزة. وتواصلت رحلة التوسع، ففي عام 1985، أضفنا خط إنتاج جديداً لأحبار الطباعة، تلاه في عام 1992 تشغيل خط إنتاج الراتنجات الصلبة.
+واليوم، يمتلك معمل الشام للكيماويات مكانة ريادية بين المصنعين في سوريا، من خلال ست مجموعات من المنتجات التي نعتز بها: (الألكيدات، الراتنجات الصلبة، إسترات الإيبوكسي، بوليمرات المستحلب، الدهانات، وأحبار الطباعة).
+هدفنا هو أن نكون مصنعاً سورياً ديناميكياً لمواد طلاء الأسطح، يلتزم بتقديم منتجات ممتازة تتناسب مع متطلبات عملائنا المتغيرة. ونحن نؤمن بأن الجودة لا تقبل المساومة، لذا نحرص على انتقاء أجود المواد الخام وفقاً للمعايير الدولية، مع الاعتماد على رقابة صارمة في جميع مراحل التصنيع ومراقبة الجودة المخبرية.
+يعمل في قسم البحث والتطوير لدينا نخبة من الكيميائيين الصناعيين المؤهلين، الذين يمثلون حجر الزاوية في كل منتج نقدمه، وتلتزم شركتنا بتحفيزهم ودعم تطورهم المستمر. ففريق عملنا الخبير يصر دائماً على تحويل الأهداف الجديدة إلى إنجازات ملموسة."
+                    data-lang-en="Since its establishment in 1954, Mustafa Abdeen & Partners, owner of Al-Cham Chemical Plant, has cemented its position as a pioneer in the paints and alkyds industry. Our journey began with the production of a diverse range of paints, relying on our own varnishes as well as the best European alkyds as binders.
+In 1970, we took a significant step towards development by establishing a modern, specialized unit for producing high-quality alkyds and polymers, not only to meet our rapid growth but also to supply major paint manufacturers with our distinctive products. The expansion continued, and in 1985, we added a new production line for printing inks, followed in 1992 by the operation of a solid resins production line.
+Today, Al-Cham Chemical Plant holds a leading position among manufacturers in Syria, with six proud product groups: (Alkyds, Solid Resins, Epoxy Esters, Emulsion Polymers, Paints, and Printing Inks).
+Our goal is to be a dynamic Syrian manufacturer of surface coating materials, committed to providing excellent products that align with our customers' changing requirements. We believe that quality is non-negotiable, so we are keen on selecting the finest raw materials in accordance with international standards, with strict control at all stages of manufacturing and laboratory quality control.
+Our Research and Development department is staffed by an elite group of qualified industrial chemists, who represent the cornerstone of every product we offer. Our company is committed to motivating them and supporting their continuous development. Our expert team is always insistent on transforming new goals into tangible achievements."
+                    data-lang-tr="1954'teki kuruluşundan bu yana, Al-Cham Kimya Fabrikası'nın sahibi Mustafa Abdeen & Partners, boya ve alkid endüstrisinde öncü bir firma olarak yerini sağlamlaştırmıştır. Yolculuğumuz, kendi verniklerimizin yanı sıra bağlayıcı olarak en iyi Avrupa alkidlerini kullanarak çeşitli boyalar üretmekle başladı.
+1970'te, sadece hızlı büyümemizi karşılamakla kalmayıp aynı zamanda önde gelen boya üreticilerine de özgün ürünlerimizi tedarik etmek için yüksek kaliteli alkid ve polimerler üreten modern ve uzman bir birim kurarak gelişime doğru önemli bir adım attık. Genişleme devam etti ve 1985'te matbaa mürekkepleri için yeni bir üretim hattı ekledik, bunu 1992'de katı reçine üretim hattının faaliyete geçmesi izledi.
+Bugün, Al-Cham Kimya Fabrikası, altı gurur duyduğumuz ürün grubuyla (Alkidler, Katı Reçineler, Epoksi Esterler, Emülsiyon Polimerleri, Boyalar ve Matbaa Mürekkepleri) Suriye'deki üreticiler arasında lider bir konuma sahiptir.
+Amacımız, müşterilerimizin değişen gereksinimlerine uygun mükemmel ürünler sunmayı taahhüt eden dinamik bir Suriyeli yüzey kaplama malzemeleri üreticisi olmaktır. Kalitenin tartışılmaz olduğuna inanıyoruz, bu nedenle uluslararası standartlara uygun en iyi hammaddeleri seçmeye özen gösteriyoruz, üretimin tüm aşamalarında sıkı kontrol ve laboratuvar kalite kontrolü ile.
+Araştırma ve Geliştirme departmanımız, sunduğumuz her ürünün temel taşını oluşturan nitelikli endüstriyel kimyagerlerden oluşan seçين bir grup tarafından yönetilmektedir. Şirketimiz, onları motive etmeye ve sürekli gelişimlerini desteklemeye kararlıdır. Uzman ekibimiz, yeni hedefleri somut başarılara dönüştürme konusunda her zaman ısrarcıdır."
+                    data-lang-fr="Depuis sa création en 1954, Mustafa Abdeen & Partners, propriétaire de l'usine chimique Al-Cham, a consolidé sa position de pionnier dans l'industrie des peintures et des alkydes. Notre parcours a commencé par la production d'une gamme variée de peintures, en nous appuyant sur nos propres vernis ainsi que sur les meilleurs alkydes européens comme liants.
+En 1970, nous avons franchi une étape importante vers le développement en créant une unité moderne et spécialisée pour la production d'alkydes et de polymères de haute qualité, non seulement pour répondre à notre croissance rapide, mais aussi pour fournir nos produits distinctifs aux grands fabricants de peinture. L'expansion s'est poursuivie et, en 1985, nous avons ajouté une nouvelle ligne de production pour les encres d'impression, suivie en 1992 par la mise en service d'une ligne de production de résines solides.
+Aujourd'hui, l'usine chimique Al-Cham occupe une position de leader parmi les fabricants en Syrie, avec six groupes de produits dont nous sommes fiers : (Alkydes, Résines solides, Esters époxy, Polymères en émulsion, Peintures et Encres d'impression).
+Notre objectif est d'être un fabricant syrien dynamique de matériaux de revêtement de surface, engagé à fournir d'excellents produits qui correspondent aux exigences changeantes de nos clients. Nous pensons que la qualité n'est pas négociable, c'est pourquoi nous tenons à sélectionner les meilleures matières premières conformément aux normes internationales, avec un contrôle strict à toutes les étapes de la fabrication et un contrôle qualité en laboratoire.
+Notre département de recherche et développement est composé d'un groupe d'élite de chimistes industriels qualifiés, qui représentent la pierre angulaire de chaque produit que nous proposons. Notre entreprise s'engage à les motiver et à soutenir leur développement continu. Notre équipe d'experts insiste toujours pour transformer les nouveaux objectifs en réalisations concrètes.">
+                </p>
+            </div>
+        </div>
+
+        <!-- 3. Products Overview Section (Moved to the top) -->
+        <section id="products" class="container mx-auto px-4 py-16">
+            <h2 class="text-4xl font-bold text-center mb-12" data-lang-ar="منتجاتنا" data-lang-en="Our Products" data-lang-tr="Ürünlerimiz" data-lang-fr="Nos produits">
+                منتجاتنا
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Paints Card -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden transition-transform duration-300 hover:scale-105">
+                    <!-- Note: Replace the placeholder image with the actual image from your 'IMG' folder -->
+                    <img src="https://placehold.co/600x400/349bca/FFFFFF?text=Paintsdesign.jpg" alt="Paints Products" class="w-full h-48 object-cover" data-image-name="Paintsdesign.jpg">
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2" data-lang-ar="الدهانات" data-lang-en="Paints" data-lang-tr="Boyalar" data-lang-fr="Peintures">الدهانات</h3>
+                        <p class="text-gray-600 mb-4" data-lang-ar="تشكيلة واسعة من الدهانات المائية والزيتية، الداخلية والخارجية، لتغطية كافة احتياجاتك." data-lang-en="A wide range of water-based and oil-based paints for all your needs." data-lang-tr="Geniş bir su bazlı ve yağ bazlı boya yelpazesi, tüm ihtiyaçlarınızı karşılamak için." data-lang-fr="Une large gamme de peintures à base d'eau et d'huile pour tous vos besoins.">
+                            تشكيلة واسعة من الدهانات المائية والزيتية، الداخلية والخارجية، لتغطية كافة احتياجاتك.
+                        </p>
+                        <a href="#" onclick="openModal('paints-modal')" class="inline-block text-main hover:text-secondary font-semibold transition-colors duration-300" data-lang-ar="تصفح المزيد" data-lang-en="Browse More" data-lang-tr="Daha Fazla Gözat" data-lang-fr="Parcourir plus">تصفح المزيد &rarr;</a>
+                    </div>
+                </div>
+                <!-- Alkyds Card -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden transition-transform duration-300 hover:scale-105">
+                    <!-- Note: Replace the placeholder image with the actual image from your 'IMG' folder -->
+                    <img src="https://placehold.co/600x400/264765/FFFFFF?text=Alkyde.jpg" alt="Alkyds Products" class="w-full h-48 object-cover" data-image-name="Alkyde.jpg">
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2" data-lang-ar="الألكيدات" data-lang-en="Alkyds" data-lang-tr="Alkidler" data-lang-fr="Alkydes">الألكيدات</h3>
+                        <p class="text-gray-600 mb-4" data-lang-ar="نقدم مجموعة متنوعة من الألكيدات المطابقة لأعلى معايير الجودة العالمية." data-lang-en="We offer a variety of alkyds that meet the highest international quality standards." data-lang-tr="En yüksek uluslararası kalite standartlarını karşılayan çeşitli alkidler sunuyoruz." data-lang-fr="Nous offrons une variété d'alkydes qui répondent aux normes de qualité internationales les plus élevées.">
+                            نقدم مجموعة متنوعة من الألكيدات المطابقة لأعلى معايير الجودة العالمية.
+                        </p>
+                        <a href="#" onclick="openModal('alkyds-modal')" class="inline-block text-main hover:text-secondary font-semibold transition-colors duration-300" data-lang-ar="تصفح المزيد" data-lang-en="Browse More" data-lang-tr="Daha Fazla Gözat" data-lang-fr="Parcourir plus">تصفح المزيد &rarr;</a>
+                    </div>
+                </div>
+                <!-- Printing Inks Card -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden transition-transform duration-300 hover:scale-105">
+                    <!-- Note: Replace the placeholder image with the actual image from your 'IMG' folder -->
+                    <img src="https://placehold.co/600x400/c0c0c0/264765?text=INKLogo.jpg" alt="Printing Inks" class="w-full h-48 object-cover" data-image-name="INKLogo.jpg">
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2" data-lang-ar="أحبار الطباعة" data-lang-en="Printing Inks" data-lang-tr="Baskı Mürekkepleri" data-lang-fr="Encres d'impression">أحبار الطباعة</h3>
+                        <p class="text-gray-600 mb-4" data-lang-ar="حلول شاملة لصناعة الطباعة، مع حبر أوفست عالي الجودة ومواد خام أساسية." data-lang-en="Comprehensive solutions for the printing industry, with high-quality offset inks and essential raw materials." data-lang-tr="Yüksek kaliteli ofset mürekkepleri ve temel hammaddelerle baskı endüstrisi için kapsamlı çözümler." data-lang-fr="Solutions complètes pour l'industrie de l'impression, avec des encres offset de haute qualité et des matières premières essentielles.">
+                            حلول شاملة لصناعة الطباعة، مع حبر أوفست عالي الجودة ومواد خام أساسية.
+                        </p>
+                        <a href="#" onclick="openModal('printing-inks-modal')" class="inline-block text-main hover:text-secondary font-semibold transition-colors duration-300" data-lang-ar="تصفح المزيد" data-lang-en="Browse More" data-lang-tr="Daha Fazla Gözat" data-lang-fr="Parcourir plus">تصفح المزيد &rarr;</a>
+                    </div>
+                </div>
+                <!-- Solvents Card -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden transition-transform duration-300 hover:scale-105">
+                    <img src="https://placehold.co/600x400/349bca/FFFFFF?text=Solvents" alt="Solvents" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2" data-lang-ar="المذيبات" data-lang-en="Solvents" data-lang-tr="Solvents" data-lang-fr="Solvants">المذيبات</h3>
+                        <p class="text-gray-600 mb-4" data-lang-ar="مذيبات عالية الجودة، بما في ذلك الوايت سبيريت، تم تصميمها بدقة لضمان الأداء الأمثل." data-lang-en="High-quality solvents, including white spirit, meticulously designed to ensure optimal performance." data-lang-tr="White spirit dahil olmak üzere, en iyi performansı sağlamak için titizlikle tasarlanmış yüksek kaliteli çözücüler." data-lang-fr="Des solvants de haute qualité, y compris le white spirit, méticuleusement conçus pour garantir des performances optimales.">
+                            مذيبات عالية الجودة، بما في ذلك الوايت سبيريت، تم تصميمها بدقة لضمان الأداء الأمثل.
+                        </p>
+                        <a href="#" onclick="openModal('solvents-modal')" class="inline-block text-main hover:text-secondary font-semibold transition-colors duration-300" data-lang-ar="تصفح المزيد" data-lang-en="Browse More" data-lang-tr="Daha Fazla Gözat" data-lang-fr="Parcourir plus">تصفح المزيد &rarr;</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. Brands Section -->
+        <section id="brands" class="py-16 bg-gray-100">
+            <div class="container mx-auto px-4">
+                <h2 class="text-4xl font-bold text-center mb-12" data-lang-ar="علاماتنا التجارية الرائدة" data-lang-en="Our Leading Brands" data-lang-tr="Öncü Markalarımız" data-lang-fr="Nos marques leaders">
+                    علاماتنا التجارية الرائدة
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                    <!-- AL FIRDOSS Card -->
+                    <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 text-center">
+                        <img src="https://placehold.co/200x80/349bca/FFFFFF?text=AL+FIRDOSS" alt="AL FIRDOSS Logo" class="mx-auto h-20 mb-4 rounded-lg">
+                        <h3 class="text-2xl font-semibold mb-2" data-lang-ar="الفردوس" data-lang-en="AL FIRDOSS" data-lang-tr="AL FIRDOSS" data-lang-fr="AL FIRDOSS">الفردوس</h3>
+                    </div>
+                    <!-- AL OFOK Card -->
+                    <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 text-center">
+                        <img src="https://placehold.co/200x80/264765/FFFFFF?text=AL+OFOK" alt="AL OFOK Logo" class="mx-auto h-20 mb-4 rounded-lg">
+                        <h3 class="text-2xl font-semibold mb-2" data-lang-ar="الأفق" data-lang-en="AL OFOK" data-lang-tr="AL OFOK" data-lang-fr="AL OFOK">الأفق</h3>
+                    </div>
+                    <!-- Junior Card -->
+                    <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 text-center">
+                        <img src="https://placehold.co/200x80/c0c0c0/264765?text=JUNIOR" alt="Junior Logo" class="mx-auto h-20 mb-4 rounded-lg">
+                        <h3 class="text-2xl font-semibold mb-2" data-lang-ar="جونيور" data-lang-en="Junior" data-lang-tr="Junior" data-lang-fr="Junior">جونيور</h3>
+                    </div>
+                     <!-- Maf chique Card -->
+                    <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 text-center">
+                        <img src="https://placehold.co/200x80/a0a0a0/FFFFFF?text=MAF+CHIQUE" alt="Maf chique Logo" class="mx-auto h-20 mb-4 rounded-lg">
+                        <h3 class="text-2xl font-semibold mb-2" data-lang-ar="ماف شيك" data-lang-en="Maf chique" data-lang-tr="Maf chique" data-lang-fr="Maf chique">ماف شيك</h3>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. Contact Us Section -->
+        <section id="contact" class="bg-gray-100 py-16">
+            <div class="container mx-auto px-4">
+                <h2 class="text-4xl font-bold text-center mb-12" data-lang-ar="تواصل معنا" data-lang-en="Contact Us" data-lang-tr="Bize Ulaşın" data-lang-fr="Contactez-nous">
+                    تواصل معنا
+                </h2>
+                <div class="flex flex-col items-center gap-6">
+                    <!-- Contact Info -->
+                    <div class="w-full max-w-xl space-y-4 text-center text-lg">
+                        <div class="flex flex-col sm:flex-row items-center justify-center sm:space-x-4 rtl:sm:space-x-reverse space-y-4 sm:space-y-0">
+                            <!-- Telephone -->
+                            <div class="flex items-center space-x-2 rtl:space-x-reverse">
+                                <i class="fas fa-phone-alt text-main"></i>
+                                <span class="block text-sm sm:text-base">00963 (11) 3212229 / 00963-0944446656</span>
+                            </div>
+                            <!-- Fax -->
+                            <div class="flex items-center space-x-2 rtl:space-x-reverse">
+                                <i class="fas fa-fax text-main"></i>
+                                <span class="block text-sm sm:text-base">00963 (11) 3731894</span>
+                            </div>
+                        </div>
+                        <div class="flex flex-col sm:flex-row items-center justify-center sm:space-x-4 rtl:sm:space-x-reverse space-y-4 sm:space-y-0">
+                            <!-- P.O. Box -->
+                            <div class="flex items-center space-x-2 rtl:space-x-reverse">
+                                <i class="fas fa-box text-main"></i>
+                                <span class="block text-sm sm:text-base" data-lang-ar="ص.ب: 2464" data-lang-en="P.O. Box: 2464" data-lang-tr="P.K.: 2464" data-lang-fr="B.P.: 2464">ص.ب: 2464</span>
+                            </div>
+                            <!-- Emails -->
+                            <div class="flex items-center space-x-2 rtl:space-x-reverse">
+                                <i class="fas fa-envelope text-main"></i>
+                                <span class="block text-sm sm:text-base">hazemabdeen@live.com, m-abdine@hotmail.com</span>
+                            </div>
+                        </div>
+                        <!-- Social Media -->
+                        <div class="flex justify-center mt-6">
+                            <a href="https://www.facebook.com/profile.php?id=61551206714856" target="_blank" rel="noopener noreferrer" class="text-secondary hover:text-main transition-colors duration-300">
+                                <i class="fab fa-facebook-square text-4xl"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-secondary text-white py-8">
+        <div class="container mx-auto px-4 text-center">
+            <p data-lang-ar="جميع الحقوق محفوظة © 2024. معمل الشام للكيماويات." data-lang-en="All rights reserved © 2024. Al-Cham Chemical Plant." data-lang-tr="Tüm hakları saklıdır © 2024. Al-Cham Kimya Fabrikası." data-lang-fr="Tous droits réservés © 2024. Al-Cham Chemical Plant.">
+                جميع الحقوق محفوظة © 2024. معمل الشام للكيماويات.
+            </p>
+        </div>
+    </footer>
+
+    <!-- Modals for product pages -->
+    <!-- Paints Modal -->
+    <div id="paints-modal" class="modal">
+        <div class="modal-content ltr-text-align">
+            <span onclick="closeModal('paints-modal')" class="close-button">&times;</span>
+            <h3 class="text-3xl font-bold mb-4 text-center"
+                data-lang-ar="دهانات معمل الشام للكيماويات: لون، جودة، وحماية موثوقة لمشاريعك"
+                data-lang-en="Al-Cham Chemical Paints: Color, Quality, and Reliable Protection for Your Projects"
+                data-lang-tr="Al-Cham Kimyasal Boyaları: Projeleriniz için Renk, Kalite ve Güvenilir Koruma"
+                data-lang-fr="Peintures chimiques Al-Cham : couleur, qualité et protection fiable pour vos projets">
+                دهانات معمل الشام للكيماويات: لون، جودة، وحماية موثوقة لمشاريعك
+            </h3>
+            <p class="text-lg leading-relaxed mb-4"
+               data-lang-ar="في معمل الشام للكيماويات، نقدم عقودًا من الخبرة في صناعة الدهانات، مع أحدث التقنيات لإنتاج حلول طلاء شاملة. تحت علاماتنا التجارية الفردوس، الأفق، ماف شيك، وجونيور، نقدم مجموعة متكاملة من الدهانات التي تلبي جميع الاحتياجات، من التشطيبات الداخلية والخارجية إلى مواد التحضير والعزل."
+               data-lang-en="At Al-Cham Chemical Plant, we offer decades of expertise in paint manufacturing, combined with the latest technology to produce comprehensive coating solutions. Under our brands Al-Firdoss, Al-ofok, Maf Cheque, and Juniour, we provide a complete range of paints that meet all needs, from interior and exterior finishes to preparation materials and insulation."
+               data-lang-tr="Al-Cham Kimya Fabrikası'nda, kapsamlı kaplama çözümleri üretmek için en son teknolojiyle birleştirilmiş onlarca yıllık boya üretim uzmanlığı sunuyoruz. Al-Firdoss, Al-ofok, Maf Cheque ve Juniour markalarımız altında, iç ve dış cephe kaplamalarından hazırlık malzemeleri ve yalıtıma kadar tüm ihtiyaçları karşılayan eksiksiz bir boya yelpazesi sunuyoruz."
+               data-lang-fr="À l'usine chimique Al-Cham, nous offrons des décennies d'expertise dans la fabrication de peintures, combinées aux dernières technologies pour produire des solutions de revêtement complètes. Sous nos marques Al-Firdoss, Al-ofok, Maf Cheque et Juniour, nous proposons une gamme complète de peintures qui répondent à tous les besoins, des finitions intérieures et extérieures aux matériaux de préparation et d'isolation.">
+                <!-- Text will be replaced by JS -->
+            </p>
+            <h4 class="text-2xl font-bold mb-2"
+                data-lang-ar="منتجاتنا:"
+                data-lang-en="Our Products:"
+                data-lang-tr="Ürünlerimiz:"
+                data-lang-fr="Nos produits:">
+                منتجاتنا:
+            </h4>
+            <ul class="list-disc pr-6 mb-4">
+                <li data-lang-ar="الدهانات الزيتية: تشكيلة واسعة من الدهانات الزيتية المعروفة بمتانتها، لمعانها الغني، وقدرتها على تحمل الظروف القاسية، مما يجعلها الخيار المثالي للأسطح التي تتطلب حماية عالية."
+                    data-lang-en="Oil-Based Paints: A wide selection of oil-based paints known for their durability, rich gloss, and ability to withstand harsh conditions, making them the ideal choice for surfaces that require high protection."
+                    data-lang-tr="Yağ Bazlı Boyalar: Dayanıklılığı, zengin parlaklığı ve zorlu koşullara dayanma yeteneği ile bilinen geniş bir yağ bazlı boya yelpazesi, yüksek koruma gerektiren yüzeyler için ideal seçimdir."
+                    data-lang-fr="Peintures à base d'huile : Une large sélection de peintures à base d'huile connues pour leur durabilité, leur riche brillance et leur capacité à résister aux conditions difficiles, ce qui en fait le choix idéal pour les surfaces qui nécessitent une protection élevée.">
+                    <!-- Text will be replaced by JS -->
+                </li>
+                <li data-lang-ar="الدهانات المائية: دهانات صديقة للبيئة وسهلة الاستخدام، تتميز بسرعة جفافها، وقابليتها للغسل، وقدرتها على توفير تشطيبات جميلة تدوم طويلاً للأسطح الداخلية والخارجية."
+                    data-lang-en="Water-Based Paints: Eco-friendly and easy-to-use paints, distinguished by their fast drying time, washability, and ability to provide beautiful, long-lasting finishes for both interior and exterior surfaces."
+                    data-lang-tr="Su Bazlı Boyalar: Hızlı kuruma süresi, yıkanabilirliği ve hem iç hem de dış yüzeyler için güzel, uzun ömürlü kaplamalar sağlama yeteneği ile öne çıkan çevre dostu ve kullanımı kolay boyalar."
+                    data-lang-fr="Peintures à base d'eau : Des peintures écologiques et faciles à utiliser, qui se distinguent par leur temps de séchage rapide, leur lavabilité et leur capacité à offrir de belles finitions durables pour les surfaces intérieures et extérieures.">
+                    <!-- Text will be replaced by JS -->
+                </li>
+                <li data-lang-ar="معاجين البناء: مواد تحضيرية عالية الجودة مصممة لتسوية الأسطح، وملء الشقوق، وإخفاء العيوب، مما يضمن قاعدة ناعمة ومثالية لتطبيق الدهان."
+                    data-lang-en="Construction Putties: High-quality preparation materials designed to level surfaces, fill cracks, and conceal imperfections, ensuring a smooth and ideal base for paint application."
+                    data-lang-tr="Yapı Macunları: Yüzeyleri düzleştirmek, çatlakları doldurmak ve kusurları gizlemek için tasarlanmış yüksek kaliteli hazırlık malzemeleri, boya uygulaması için pürüzsüz ve ideal bir temel sağlar."
+                    data-lang-fr="Mastics de construction : Des matériaux de préparation de haute qualité conçus pour niveler les surfaces, combler les fissures et masquer les imperfections, garantissant une base lisse et idéale pour l'application de la peinture.">
+                    <!-- Text will be replaced by JS -->
+                </li>
+                <li data-lang-ar="مواد العزل المائية: حلول عزل متطورة تعتمد على الماء، وتوفر حماية فعالة ضد الرطوبة والمياه، مما يضمن سلامة واستدامة مبانيكم على المدى الطويل."
+                    data-lang-en="Water-Based Insulators: Advanced, water-based insulation solutions that provide effective protection against moisture and water, ensuring the long-term safety and sustainability of your buildings."
+                    data-lang-tr="Su Bazlı Yalıtım Malzemeleri: Binalarınızın uzun vadeli güvenliğini ve sürdürülebilirliğini sağlayan nem ve suya karşı etkili koruma sağlayan gelişmiş, su bazlı yalıtım çözümleri.">
+                    <!-- Text will be replaced by JS -->
+                </li>
+            </ul>
+            <h4 class="text-2xl font-bold mb-2"
+                data-lang-ar="علاماتنا التجارية:"
+                data-lang-en="Our Brands:"
+                data-lang-tr="Markalarımız:"
+                data-lang-fr="Nos marques:">
+                علاماتنا التجارية:
+            </h4>
+            <p class="text-lg leading-relaxed mb-4"
+               data-lang-ar="علاماتنا التجارية الأربع (الفردوس، الأفق، ماف شيك، وجونيور) تشترك جميعها في الالتزام بالجودة العالية، الابتكار، وتقديم أفضل قيمة لعملائنا في السوق."
+               data-lang-en="Our four brands (Al-Firdoss, Al-ofok, Maf Cheque, and Juniour) all share a commitment to high quality, innovation, and providing the best value to our customers in the market."
+               data-lang-tr="Dört markamız (Al-Firdoss, Al-ofok, Maf Cheque ve Juniour) hepsi yüksek kalite, yenilik ve pazardaki müşterilerimize en iyi değeri sunma taahhüdünü paylaşmaktadır."
+               data-lang-fr="Nos quatre marques (Al-Firdoss, Al-ofok, Maf Cheque et Juniour) partagent toutes un engagement envers la haute qualité, l'innovation et la fourniture de la meilleure valeur à nos clients sur le marché.">
+                <!-- Text will be replaced by JS -->
+            </p>
+            <div class="text-center mt-6">
+                <a href="#contact" onclick="closeModal('paints-modal')" class="inline-block bg-main hover:bg-opacity-80 transition-all duration-300 text-white font-bold py-3 px-8 rounded-full shadow-lg transform hover:scale-105"
+                   data-lang-ar="تواصل معنا للاستشارة"
+                   data-lang-en="Contact Us for Consultation"
+                   data-lang-tr="Danışmanlık için Bize Ulaşın"
+                   data-lang-fr="Contactez-nous pour une consultation">
+                    تواصل معنا للاستشارة
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alkyds Modal -->
+    <div id="alkyds-modal" class="modal">
+        <div class="modal-content ltr-text-align">
+            <span onclick="closeModal('alkyds-modal')" class="close-button">&times;</span>
+            <h3 class="text-3xl font-bold mb-4 text-center"
+                data-lang-ar="ألكيدات معمل الشام: جودة متجذرة في الخبرة، وحلول مصممة لمشاريعك"
+                data-lang-en="Al-Cham Plant Alkyds: Quality Rooted in Experience, Solutions Designed for Your Projects"
+                data-lang-tr="Al-Cham Fabrikası Alkidleri: Deneyime Dayalı Kalite, Projeleriniz için Tasarlanmış Çözümler"
+                data-lang-fr="Alkydes de l'usine Al-Cham : qualité enracinée dans l'expérience, solutions conçues pour vos projets">
+                ألكيدات معمل الشام: جودة متجذرة في الخبرة، وحلول مصممة لمشاريعك
+            </h3>
+            <p class="text-lg leading-relaxed mb-4"
+               data-lang-ar="منذ عام 1954، كان معمل الشام للكيماويات حجر الزاوية في صناعة الدهانات والألكيدات. تمتد خبرتنا لأكثر من ستة عقود، بدءاً بإنتاج الدهانات باستخدام ورنيشاتنا الخاصة وأجود الألكيدات الأوروبية. واليوم، تطورنا لنصبح مصنعاً رائداً للألكيدات والبوليمرات في المنطقة."
+               data-lang-en="Since 1954, Al-Cham Chemical Plant has been a cornerstone of the paints and alkyds industry. Our experience spans over six decades, beginning with the production of paints using our own varnishes and the finest European alkyds. Today, we have evolved to become a leading manufacturer of alkyds and polymers in the region."
+               data-lang-tr="1954'ten beri, Al-Cham Kimya Fabrikası, boya ve alkid endüstrisinin temel taşı olmuştur. Deneyimimiz, kendi verniklerimizi ve en iyi Avrupa alkidlerini kullanarak boya üretimiyle başlayan altmış yılı aşkın bir süreyi kapsamaktadır. Bugün, bölgedeki alkid ve polimerlerin önde gelen üreticilerinden biri haline geldik."
+               data-lang-fr="Depuis 1954, l'usine chimique Al-Cham est une pierre angulaire de l'industrie des peintures et des alkydes. Notre expérience s'étend sur plus de six décennies, commençant par la production de peintures à l'aide de nos propres vernis et des meilleurs alkydes européens. Aujourd'hui, nous avons évolué pour devenir un fabricant de premier plan d'alkydes et de polymères dans la région.">
+                <!-- Text will be replaced by JS -->
+            </p>
+            <p class="text-lg leading-relaxed mb-4"
+               data-lang-ar="نحن ندرك أن جودة الألكيد تحدد أداء المنتج النهائي. لذلك، يلتزم فريقنا الفني بإنتاج مجموعة متنوعة من الألكيدات التي تلبي أعلى المعايير وتخدم قطاعات صناعية متعددة."
+               data-lang-en="We understand that the quality of the alkyd determines the performance of the final product. Therefore, our technical team is committed to producing a diverse range of alkyds that meet the highest standards and serve multiple industrial sectors."
+               data-lang-tr="Alkid kalitesinin nihai ürünün performansını belirlediğini biliyoruz. Bu nedenle, teknik ekibimiz en yüksek standartları karşılayan ve birden fazla endüstriyel sektöre hizmet eden çeşitli alkidler üretmeye kararlıdır."
+               data-lang-fr="Nous comprenons que la qualité de l'alkyde détermine la performance du produit final. Par conséquent, notre équipe technique s'engage à produire une gamme variée d'alkydes qui répondent aux normes les plus élevées et servent plusieurs secteurs industriels.">
+                <!-- Text will be replaced by JS -->
+            </p>
+            <p class="text-lg leading-relaxed mb-4"
+               data-lang-ar="نحن فخورون بقدرتنا على تحويل خبرتنا الطويلة إلى حلول مبتكرة. إذا كانت تطبيقاتك تتطلب مواصفات فنية دقيقة أو فريدة، فإننا ندعوك للاستفادة من قدراتنا في البحث والتطوير. يمكن لفريقنا من الكيميائيين تصميم وتخصيص الألكيدات بالكامل لتلبية متطلباتك الدقيقة. نحن لسنا مجرد مورد؛ نحن شريكك التقني."
+               data-lang-en="We take pride in our ability to transform our long experience into innovative solutions. If your applications require precise or unique technical specifications, we invite you to leverage our capabilities in research and development. Our team of chemists can design and fully customize alkyds to meet your exact requirements. We are not just a supplier; we are your technical partner."
+               data-lang-tr="Uzun deneyimimizi yenilikçi çözümlere dönüştürme yeteneğimizle gurur duyuyoruz. Uygulamalarınız hassas veya benzersiz teknik özellikler gerektiriyorsa, sizi araştırma ve geliştirme yeteneklerimizden yararlanmaya davet ediyoruz. Kimyager ekibimiz, tam olarak gereksinimlerinizi karşılamak için alkidleri tasarlayabilir ve tamamen özelleştirebilir. Biz sadece bir tedarikçi değiliz; biz sizin teknik ortağınızız."
+               data-lang-fr="Nous sommes fiers de notre capacité à transformer notre longue expérience en solutions innovantes. Si vos applications nécessitent des spécifications techniques précises ou uniques, nous vous invitons à tirer parti de nos capacités de recherche et développement. Notre équipe de chimistes peut concevoir et personnaliser entièrement des alkydes pour répondre à vos exigences exactes. Nous ne sommes pas seulement un fournisseur; nous sommes votre partenaire technique.">
+                <!-- Text will be replaced by JS -->
+            </p>
+            <h4 class="text-2xl font-bold mb-2"
+                data-lang-ar="نطاق منتجاتنا:"
+                data-lang-en="Our Product Range:"
+                data-lang-tr="Ürün yelpazemiz:"
+                data-lang-fr="Notre gamme de produits:">
+                نطاق منتجاتنا:
+            </h4>
+            <ul class="list-disc pr-6 mb-4">
+                <li data-lang-ar="الألكيدات التقليدية والعامة: نقدم مجموعة واسعة من الألكيدات التي توفر توازناً مثالياً بين اللزوجة، وقت الجفاف، والمرونة، مما يجعلها مثالية للاستخدام في الدهانات الصناعية، والصيانة، والرذاذ، والدهانات الزخرفية."
+                    data-lang-en="Traditional and General-Purpose Alkyds: We offer a wide range of alkyds that provide an ideal balance of viscosity, drying time, and flexibility, making them perfect for use in industrial, maintenance, spray, and decorative paints."
+                    data-lang-tr="Endüstriyel, bakım, sprey ve dekoratif boyalarda kullanım için ideal hale getiren viskozite, kuruma süresi ve esneklik arasında ideal bir denge sağlayan geniş bir alkid yelpazesi sunuyoruz."
+                    data-lang-fr="Alkydes traditionnels et à usage général : Nous offrons une large gamme d'alkydes qui offrent un équilibre idéal entre la viscosité, le temps de séchage et la flexibilité, ce qui les rend parfaits pour une utilisation dans les peintures industrielles, d'entretien, en aérosol et décoratives.">
+                    <!-- Text will be replaced by JS -->
+                </li>
+                <li data-lang-ar="الألكيدات المتخصصة: بالإضافة إلى منتجاتنا التقليدية، نقدم حلولاً متقدمة مصممة لتحديات محددة، مثل:
+                    <ul>
+                        <li>ألكيدات مستحلبة: للدهانات المائية الصديقة للبيئة.</li>
+                        <li>ألكيدات بتأثير Texo.</li>
+                        <li>ألكيدات يوريثان: (لمتانة معززة)</li>
+                        <li>ألكيدات معدلة براتنج الفينول: لتعزيز المقاومة الكيميائية والصلابة، وتستخدم خصيصاً في دهانات تأثير حجر المطرقة.</li>
+                        <li>ألكيدات معدلة بالإيبوكسي: لتحسين الالتصاق، والمتانة، ومقاومة التآكل.</li>
+                    </ul>"
+                    data-lang-en="Specialized Alkyds: In addition to our traditional products, we offer advanced solutions designed for specific challenges, such as:
+                    <ul>
+                        <li>Emulsified Alkyds: For eco-friendly, water-based paints.</li>
+                        <li>Alkyds with Texo Effect.</li>
+                        <li>Urethane Alkyds: (For enhanced durability)</li>
+                        <li>Phenolic Resin Modified Alkyds: To enhance chemical resistance and hardness, specifically used in hummer rock effect paints.</li>
+                        <li>Epoxy Modified Alkyds: To improve adhesion, durability, and corrosion resistance.</li>
+                    </ul>"
+                    data-lang-tr="Özel Alkidler: Geleneksel ürünlerimize ek olarak, belirli zorluklar için tasarlanmış gelişmiş çözümler sunuyoruz:
+                    <ul>
+                        <li>Emülsifiye Alkidler: Çevre dostu, su bazlı boyalar için.</li>
+                        <li>Texo Efektli Alkidler.</li>
+                        <li>Üretan Alkidler: (Geliştirilmiş dayanıklılık için)</li>
+                        <li>Fenolik Reçine Modifiye Alkidler: Kimyasal direnci ve sertliği artırmak için, özellikle çekiç kaya efektli boyalarda kullanılır.</li>
+                        <li>Epoksi Modifiye Alkidler: Yapışmayı, dayanıklılığı ve korozyon direncini artırmak için.</li>
+                    </ul>"
+                    data-lang-fr="Alkydes spécialisés : En plus de nos produits traditionnels, nous proposons des solutions avancées conçues pour des défis spécifiques, tels que :
+                    <ul>
+                        <li>Alkydes émulsionnés : Pour les peintures à base d'eau respectueuses de l'environnement.</li>
+                        <li>Alkydes à effet Texo.</li>
+                        <li>Alkydes d'uréthane : (Pour une durabilité accrue)</li>
+                        <li>Alkydes modifiés par de la résine phénolique : Pour améliorer la résistance chimique et la dureté, spécifiquement utilisés dans les peintures à effet de roche martelée.</li>
+                        <li>Alkydes modifiés par de l'époxy : Pour améliorer l'adhérence, la durabilité et la résistance à la corrosion.</li>
+                    </ul>">
+                    <!-- Text will be replaced by JS -->
+                </li>
+            </ul>
+            <div class="text-center mt-6">
+                <a href="#contact" onclick="closeModal('alkyds-modal')" class="inline-block bg-main hover:bg-opacity-80 transition-all duration-300 text-white font-bold py-3 px-8 rounded-full shadow-lg transform hover:scale-105"
+                   data-lang-ar="تواصل مع خبرائنا"
+                   data-lang-en="Contact Our Experts"
+                   data-lang-tr="Uzmanlarımızla İletişime Geçin"
+                   data-lang-fr="Contactez nos experts">
+                    تواصل مع خبرائنا
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Printing Inks Modal -->
+    <div id="printing-inks-modal" class="modal">
+        <div class="modal-content ltr-text-align">
+            <span onclick="closeModal('printing-inks-modal')" class="close-button">&times;</span>
+            <h3 class="text-3xl font-bold mb-4 text-center"
+                data-lang-ar="أحبار الطباعة: حلول الأوفست والمواد الخام"
+                data-lang-en="Printing Inks: Offset Solutions & Raw Materials"
+                data-lang-tr="Baskı Mürekkepleri: Ofset Çözümleri ve Hammaddeler"
+                data-lang-fr="Encres d'impression : Solutions offset et matières premières">
+                أحبار الطباعة: حلول الأوفست والمواد الخام
+            </h3>
+            <p class="text-lg leading-relaxed mb-4"
+               data-lang-ar="منذ عام 1985، ومعمل الشام للكيماويات يوفر حلولًا شاملة لصناعة الطباعة. نحن متخصصون في إنتاج أحبار أوفست عالية الجودة تتميز بثبات ألوانها، سرعة جفافها، وقوة التصاقها، مما يضمن أداءً ودقة استثنائية في كل طبعة."
+               data-lang-en="Since 1985, Al-Cham Chemical Plant has been providing comprehensive solutions for the printing industry. We specialize in producing high-quality offset inks that are distinguished by their color stability, fast drying, and strong adhesion, ensuring exceptional performance and precision with every print."
+               data-lang-tr="1985'ten beri Al-Cham Kimya Fabrikası, matbaa endüstrisi için kapsamlı çözümler sunmaktadır. Renk stabilitesi, hızlı kuruması ve güçlü yapışması ile öne çıkan yüksek kaliteli ofset mürekkepleri üretiminde uzmanız, bu da her baskıda olağanüstü performans ve hassasiyet sağlar."
+               data-lang-fr="Depuis 1985, l'usine chimique Al-Cham fournit des solutions complètes pour l'industrie de l'imprimerie. Nous sommes spécialisons dans la production d'encres offset de haute qualité qui se distinguent par leur stabilité des couleurs, leur séchage rapide et leur forte adhérence, garantissant des performances et une précision exceptionnelles à chaque impression.">
+                <!-- Text will be replaced by JS -->
+            </p>
+            <p class="text-lg leading-relaxed mb-4"
+               data-lang-ar="بالإضافة إلى ذلك، وكجزء أساسي من سلسلة التوريد، نوفر المواد الخام الأساسية لإنتاج أحبار الطباعة، بما في ذلك الزيوت، المذيبات والأصباغ، مما يمكّن شركاءنا من تحقيق تركيباتهم المثالية."
+               data-lang-en="In addition, as a key part of the supply chain, we provide essential raw materials for printing ink production, including oils, solvents and pigments, enabling our partners to achieve their ideal formulations."
+               data-lang-tr="Buna ek olarak, tedarik zincirinin önemli bir parçası olarak, ortaklarımızın ideal formülasyonlarını elde etmelerini sağlayan yağlar, solventler ve pigmentler dahil olmak üzere baskı mürekkebi üretimi için temel hammaddeler sağlıyoruz."
+               data-lang-fr="De plus, en tant qu'élément clé de la chaîne d'approvisionnement, nous fournissons les matières premières essentielles à la production d'encre d'imprimerie, y compris les huiles, les solvants et les pigments, permettant à nos partenaires d'obtenir leurs formulations idéales.">
+                <!-- Text will be replaced by JS -->
+            </p>
+            <div class="text-center mt-6">
+                <a href="#contact" onclick="closeModal('printing-inks-modal')" class="inline-block bg-main hover:bg-opacity-80 transition-all duration-300 text-white font-bold py-3 px-8 rounded-full shadow-lg transform hover:scale-105"
+                   data-lang-ar="تواصل مع خبرائنا"
+                   data-lang-en="Contact Our Experts"
+                   data-lang-tr="Uzmanlarımızla İletişime Geçin"
+                   data-lang-fr="Contactez nos experts">
+                    تواصل مع خبرائنا
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Solvents Modal -->
+    <div id="solvents-modal" class="modal">
+        <div class="modal-content ltr-text-align">
+            <span onclick="closeModal('solvents-modal')" class="close-button">&times;</span>
+            <h3 class="text-3xl font-bold mb-4 text-center"
+                data-lang-ar="المذيبات: النقاء والدقة لمنتجاتكم"
+                data-lang-en="Solvents: Purity and Precision for Your Products"
+                data-lang-tr="Çözücüler: Ürünleriniz için Saflık ve Hassasiyet"
+                data-lang-fr="Solvants : Pureté et précision pour vos produits">
+                المذيبات: النقاء والدقة لمنتجاتكم
+            </h3>
+            <p class="text-lg leading-relaxed mb-4"
+               data-lang-ar="في معمل الشام، نتجاوز دورنا كمجرد مورد لنقدم حلولاً متكاملة. نقدم مجموعة متخصصة من المذيبات عالية الجودة التي يتم تكريرها بدقة في منشآتنا الخاصة. إن منتجنا الرئيسي، الوايت سبيريت، مصمم خصيصاً لضمان أفضل أداء في تطبيقات الدهانات، مما يوفر لعملائنا أساساً نقياً وموثوقاً لمنتجاتهم. نحن نضمن أقصى درجات النقاء، مما يجعله الخيار الأمثل للمحترفين."
+               data-lang-en="At Al-Cham, we go beyond being a mere supplier to offer integrated solutions. We provide a specialized range of high-quality solvents meticulously refined in our own facilities. Our key product, white spirit, is specifically formulated to ensure optimal performance in paint applications, providing our clients with a pure and reliable foundation for their products. We guarantee the highest degree of purity, making it the perfect choice for professionals."
+               data-lang-tr="Al-Cham'da, sadece bir tedarikçi olmaktan öte, entegre çözümler sunuyoruz. Kendi tesislerimizde titizlikle rafine edilen yüksek kaliteli çözücülerden oluşan özel bir yelpaze sunuyoruz. Ana ürünümüz olan white spirit, boya uygulamalarında en iyi performansı sağlamak için özel olarak formüle edilmiştir, müşterilerimize ürünleri için saf ve güvenilir bir temel sağlar. En yüksek saflık derecesini garanti ediyoruz, bu da onu profesyoneller için mükemmel bir seçim haline getiriyor."
+               data-lang-fr="À Al-Cham, nous allons au-delà d'être un simple fournisseur pour offrir des solutions intégrées. Nous proposons une gamme spécialisée de solvants de haute qualité méticuleusement raffinés dans nos propres installations. Notre produit clé, le white spirit, est spécifiquement formulé pour garantir des performances optimales dans les applications de peinture, offrant à nos clients une base pure et fiable pour leurs produits. Nous garantissons le plus haut degré de pureté, ce qui en fait le choix parfait pour les professionnels.">
+                <!-- Text will be replaced by JS -->
+            </p>
+            <div class="text-center mt-6">
+                <a href="#contact" onclick="closeModal('solvents-modal')" class="inline-block bg-main hover:bg-opacity-80 transition-all duration-300 text-white font-bold py-3 px-8 rounded-full shadow-lg transform hover:scale-105"
+                   data-lang-ar="تواصل معنا لمعرفة المزيد"
+                   data-lang-en="Contact Us to Learn More"
+                   data-lang-tr="Daha Fazla Bilgi İçin Bize Ulaşın"
+                   data-lang-fr="Contactez-nous pour en savoir plus">
+                    تواصل معنا لمعرفة المزيد
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- JavaScript for Language Switching and Modal -->
+    <script>
+        const langSelector = document.getElementById('language-selector');
+        const elementsToTranslate = document.querySelectorAll('[data-lang-ar], [data-lang-en], [data-lang-tr], [data-lang-fr]');
+
+        // Function to open modal
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.add('is-open');
+                document.body.style.overflow = 'hidden'; // Prevents background scroll
+            }
+        }
+
+        // Function to close modal
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.remove('is-open');
+                document.body.style.overflow = ''; // Restores background scroll
+            }
+        }
+
+        langSelector.addEventListener('change', (event) => {
+            const selectedLang = event.target.value;
+            const isRtl = selectedLang === 'ar';
+            document.documentElement.lang = selectedLang;
+            document.documentElement.dir = isRtl ? 'rtl' : 'ltr';
+
+            elementsToTranslate.forEach(element => {
+                const translationKey = `data-lang-${selectedLang}`;
+                if (element.hasAttribute(translationKey)) {
+                    element.innerHTML = element.getAttribute(translationKey);
+                }
+            });
+        });
+
+        // Close modal when clicking outside of it
+        window.onclick = function(event) {
+            const modals = document.querySelectorAll('.modal.is-open');
+            modals.forEach(modal => {
+                if (event.target == modal) {
+                    modal.classList.remove('is-open');
+                    document.body.style.overflow = '';
+                }
+            });
+        }
+
+        // Set initial direction based on default language
+        window.onload = () => {
+             const selectedLang = langSelector.value;
+             const isRtl = selectedLang === 'ar';
+             document.documentElement.dir = isRtl ? 'rtl' : 'ltr';
+             langSelector.dispatchEvent(new Event('change'));
+        }
+    </script>
 </body>
 </html>
