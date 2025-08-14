@@ -1,16 +1,8 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <!-- SEO & Metadata for search engines and social media -->
+    <!-- Basic SEO and Meta Tags -->
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>معمل الشام للكيماويات | الفردوس - الأفق - ماف شيك - جونيور</title>
-    <meta name="description" content="معمل الشام للكيماويات، رواد صناعة الدهانات، الألكيدات، المذيبات، وأحبار الطباعة في سوريا. علاماتنا التجارية: الفردوس، الأفق، ماف شيك، وجونيور.">
-    <!-- Meta keywords are used by some search engines to help rank the page -->
-    <meta name="keywords" content="معمل الشام للكيماويات، الفردوس، الأفق، ماف شيك، جونيور، دهانات، مذيبات، أحبار طباعة، سوريا، كيماويات، al firdoss, al ofok, junior, maf chique, paints, inks, solvents, syria">
-    <!-- Meta author for authorship attribution -->
-    <meta name="author" content="Sham Chemical Laboratory">
-      <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title data-lang-ar="معمل الشام للكيماويات | دهانات، ألكيدات، أحبار طباعة، ومذيبات" data-lang-en="Al-Cham Chemical Plant | Paints, Alkyds, Printing Inks, and Solvents" data-lang-tr="Al-Cham Kimya Fabrikası | Boya, Alkid, Baskı Mürekkebi ve Çözücüler" data-lang-fr="Al-Cham Chemical Plant | Peintures, Alkydes, Encres d'impression et Solvants">
         معمل الشام للكيماويات | دهانات، ألكيدات، أحبار طباعة، ومذيبات
@@ -35,7 +27,7 @@
       "legalName": "معمل الشام للكيماويات",
       "url": "https://yourwebsite.com/",
       "logo": "https://yourwebsite.com/logo.png",
-      "description": "Producers of high-quality paints, alkyds, printing s, and solvents under brands like AL FIRDOSS and AL OFOK.",
+      "description": "Producers of high-quality paints, alkyds, printing inks, and solvents under brands like AL FIRDOSS and AL OFOK.",
       "contactPoint": {
         "@type": "ContactPoint",
         "telephone": "+963-933-605-119",
@@ -46,40 +38,40 @@
       ]
     }
     </script>
-    <!-- L to Tailwind CSS framework for responsive design -->
+
+    <!-- Tailwind CSS for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Font for a clean and modern look -->
-    <l rel="preconnect" href="https://fonts.googleapis.com">
-    <l rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <l href="https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        main: '#349bca',
+                        secondary: '#264765',
+                        silver: '#c0c0c0',
+                    },
+                },
+            },
+        };
+    </script>
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <!-- Google Fonts for a clean and modern look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&display=swap">
     
     <style>
         body {
-            font-family: 'Tajawal', sans-serif;
-            background-color: #f0f4f8; /* Light gray background */
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+            color: #264765;
         }
         .main-gradient {
             background: linear-gradient(to right, #264765, #349bca);
-        }
-    </style>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title data-lang-ar="معمل الشام للكيماويات - Mustafa Abdeen & Partners"
-           data-lang-en="Al-Cham Chemical Plant - Mustafa Abdeen & Partners"
-           data-lang-tr="Al-Cham Kimya Fabrikası - Mustafa Abdeen & Partners"
-           data-lang-fr="Usine chimique Al-Cham - Mustafa Abdeen & Partners">
-        معمل الشام للكيماويات - Mustafa Abdeen & Partners
-    </title>
-    <!-- Tailwind CSS for styling -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome for icons -->
-    <l rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <!-- Google Font - Inter -->
-    <l rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            color: #264765;
         }
         .bg-main {
             background-color: #349bca;
@@ -106,6 +98,7 @@
             font-weight: 900;
             margin-left: 0.5rem;
         }
+        /* Modal Styles */
         .modal {
             position: fixed;
             z-index: 100;
@@ -165,6 +158,7 @@
         }
     </style>
 </head>
+
 <body class="bg-gray-50 text-gray-800">
 
     <!-- Header & Navigation -->
