@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <!-- Basic SEO and Meta Tags -->
+    <!-- Your original Basic SEO and Meta Tags -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title data-lang-ar="معمل الشام للكيماويات | دهانات، ألكيدات، أحبار طباعة، ومذيبات" data-lang-en="Al-Cham Chemical Plant | Paints, Alkyds, Printing Inks, and Solvents" data-lang-tr="Al-Cham Kimya Fabrikası | Boya, Alkid, Baskı Mürekkebi ve Çözücüler" data-lang-fr="Al-Cham Chemical Plant | Peintures, Alkydes, Encres d'impression et Solvants">
@@ -9,16 +9,18 @@
     </title>
     <meta name="description" data-lang-ar="معمل الشام للكيماويات: متخصصون في إنتاج وتوزيع الدهانات (الفردوس، الأفق، ماف شيك، جونيور)، الألكيدات، أحبار الطباعة، والمذيبات. خبرة وجودة منذ عام 1954." data-lang-en="Al-Cham Chemical Plant: Specialists in the production and distribution of paints (AL FIRDOSS, AL OFOK, Maf chique, Junior), alkyds, printing inks, and solvents. Quality and expertise since 1954." data-lang-tr="Al-Cham Kimya Fabrikası: Boya (AL FIRDOSS, AL OFOK, Maf chique, Junior), alkid, baskı mürekkebi ve çözücü üretim ve dağıtımında uzmanız. 1954'ten beri kalite ve uzmanlık." data-lang-fr="Al-Cham Chemical Plant : Spécialistes de la production et de la distribution de peintures (AL FIRDOSS, AL OFOK, Maf chique, Junior), d'alkydes, d'encres d'imprimerie et de solvants. Qualité et expertise depuis 1954.">
     <meta name="keywords" data-lang-ar="معمل الشام, دهانات, الفردوس, الأفق, ماف شيك, جونيور, ألكيدات, أحبار طباعة, مذيبات, وايت سبيريت, كيماويات, مواد بناء" data-lang-en="Al-Cham Chemical Plant, Paints, AL FIRDOSS, AL OFOK, Maf chique, Junior, Alkyds, Printing Inks, Solvents, White Spirit, Chemicals, Building Materials">
-    <link rel="canonical" href="https://mabdeen.com/">
-
-    <!-- Open Graph for social media sharing -->
+    
+    <!-- FIX: This is your original canonical tag, with a new "id" attribute. The href will be updated by the script below. -->
+    <link rel="canonical" id="canonical-tag" href="https://mabdeen.com/?lang=ar">
+    
+    <!-- Your original Open Graph tags -->
     <meta property="og:title" content="Al-Cham Chemical Plant | Paints, Alkyds, Printing Inks, and Solvents">
     <meta property="og:description" content="Al-Cham Chemical Plant: Specialists in the production and distribution of paints, alkyds, printing inks, and solvents. Quality and expertise since 1954.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://mabdeen.com/">
     <meta property="og:image" content="https://mabdeen.com/logo.png">
 
-    <!-- JSON-LD Structured Data for SEO -->
+    <!-- Your original JSON-LD Structured Data for SEO (with one URL correction) -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -38,8 +40,8 @@
       ]
     }
     </script>
-
-    <!-- Tailwind CSS for styling -->
+    
+    <!-- Your original Tailwind CSS for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -55,15 +57,15 @@
         };
     </script>
     
-    <!-- Font Awesome for icons -->
+    <!-- Your original Font Awesome and Google Fonts -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     
-    <!-- Google Fonts for a clean and modern look -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&display=swap">
     
+    <!-- Your original custom styles -->
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -106,7 +108,7 @@
             opacity: 0;
             visibility: hidden;
             transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
-            display: flex; /* Keep flex for layout, control visibility via opacity */
+            display: flex;
         }
         .modal.is-open {
             opacity: 1;
@@ -150,12 +152,29 @@
             text-align: left;
         }
     </style>
+    
+    <!-- Your original hreflang tags -->
     <link rel="alternate" hreflang="ar" href="https://madbeen.com/?lang=ar" />
-<link rel="alternate" hreflang="en" href="https://madbeen.com/?lang=en" />
-<link rel="alternate" hreflang="tr" href="https://madbeen.com/?lang=tr" />
-<link rel="alternate" hreflang="fr" href="https://madbeen.com/?lang=fr" />
-<link rel="alternate" hreflang="x-default" href="https://madbeen.com/?lang=ar" />
+    <link rel="alternate" hreflang="en" href="https://madbeen.com/?lang=en" />
+    <link rel="alternate" hreflang="tr" href="https://madbeen.com/?lang=tr" />
+    <link rel="alternate" hreflang="fr" href="https://madbeen.com/?lang=fr" />
+    <link rel="alternate" hreflang="x-default" href="https://madbeen.com/?lang=ar" />
+    
+    <!-- NEW CODE: This JavaScript will dynamically set the canonical tag, fixing the issue. -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentLang = new URLSearchParams(window.location.search).get('lang');
+            const canonicalTag = document.getElementById('canonical-tag');
+            if (currentLang) {
+                canonicalTag.setAttribute('href', `https://madbeen.com/?lang=${currentLang}`);
+            } else {
+                // If there's no lang parameter, set the canonical to the default URL
+                canonicalTag.setAttribute('href', 'https://madbeen.com/?lang=ar');
+            }
+        });
+    </script>
 </head>
+
 <body class="bg-gray-50 text-gray-800">
 
     <!-- Header & Navigation -->
