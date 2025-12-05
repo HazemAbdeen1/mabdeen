@@ -438,7 +438,7 @@
         ];
         
         // ==============================================
-        //  آلة حالة اللمس (Touch State Machine) - (محسنة لتحديد الإفلات)
+        //  آلة حالة اللمس (Touch State Machine) - (تحسين منع التمرير)
         // ==============================================
         let touchState = {
             id: null,
@@ -457,9 +457,9 @@
          * تخزن الإحداثيات وتبدأ عداد الضغط المطول.
          */
         window.handleTouchStart = (event, colorId) => {
-            // تجاهل اللمسات الإضافية إذا كان السحب نشطاً بالفعل
+            // تجاهل اللمسات الإضافية أو إذا كان مؤقت التمرير نشطاً
             if (touchState.isDragging || touchState.longPressTimer) {
-                event.preventDefault();
+                // لا نمنع سلوك النقر هنا للسماح للنقرات العادية بالعمل
                 return;
             }
 
@@ -524,23 +524,30 @@
 
 
         /**
-         * تتعقب حركة الأصبع.
-         * تمنع التمرير إذا بدأ السحب أو تلغي العداد إذا كانت الحركة سريعة (تمرير).
+         * تتعقب حركة الأصبع. (محسن لمنع التمرير)
          */
         window.handleTouchMove = (event) => {
             const touch = event.touches[0];
-            if (!touch) return;
+            if (!touch || (!touchState.longPressTimer && !touchState.isDragging)) return;
             
             const dx = Math.abs(touch.clientX - touchState.startX);
             const dy = Math.abs(touch.clientY - touchState.startY);
 
-            // إذا تحرك الأصبع قبل بدء السحب (بمعنى أن المستخدم يريد التمرير)
-            if (!touchState.isDragging && (dx > DRAG_TOLERANCE || dy > DRAG_TOLERANCE)) {
-                clearTimeout(touchState.longPressTimer);
-                touchState.id = null; // إلغاء السحب المحتمل
+            // 1. إذا كنا ننتظر الضغط المطول
+            if (touchState.longPressTimer) {
+                // إذا تجاوزت الحركة التسامح، فهي تمرير: نلغي السحب.
+                if (dx > DRAG_TOLERANCE || dy > DRAG_TOLERANCE) {
+                    clearTimeout(touchState.longPressTimer);
+                    touchState.id = null; // إلغاء السحب المحتمل
+                    // لا نمنع الافتراضي، مما يسمح للتمرير بالبدء.
+                } else {
+                    // حركة بسيطة جداً، نحن ننتظر السحب. نمنع التمرير مؤقتاً.
+                    event.preventDefault(); 
+                }
+                return;
             }
 
-            // إذا بدأ السحب بالفعل، حرّك العنصر الوهمي ومنع التمرير
+            // 2. إذا بدأ السحب بالفعل: حرك العنصر الوهمي ومنع التمرير
             if (touchState.isDragging && touchState.cloneElement) {
                 event.preventDefault(); // منع سلوك المتصفح الافتراضي (التمرير)
                 // تحديث موقع العنصر الوهمي
@@ -551,18 +558,17 @@
 
         /**
          * تُطلق عند رفع الأصبع.
-         * تستخدم الآن حساب Bounding Box لتحديد الإفلات بدقة.
          */
         window.handleTouchEnd = (event) => {
             clearTimeout(touchState.longPressTimer);
             
             if (!touchState.isDragging) {
-                // ليس سحباً (نقرة سريعة)، والسلوك الافتراضي مسموح به
+                // ليس سحباً (نقرة سريعة)
                 resetTouchState();
                 return;
             }
             
-            // الآن تم التأكد من أنها عملية سحب (isDragging = true)
+            // الآن تم التأكد من أنها عملية سحب
             const touch = event.changedTouches[0];
             if (touch) {
                 const touchX = touch.clientX;
@@ -571,7 +577,7 @@
 
                 // التحقق من الإفلات باستخدام Bounding Boxes (أكثر موثوقية على الجوال)
                 document.querySelectorAll('.matcher-slot-small').forEach(dropZone => {
-                    if (dropZone.classList.contains('matcher-slot-filled')) return; // تجاهل الخانات المملوءة
+                    if (dropZone.classList.contains('matcher-slot-filled')) return; 
 
                     const rect = dropZone.getBoundingClientRect();
 
@@ -579,7 +585,6 @@
                     if (touchX >= rect.left && touchX <= rect.right &&
                         touchY >= rect.top && touchY <= rect.bottom) {
                         
-                        // تم الإفلات بنجاح!
                         const colorData = initialColors.find(c => c.id === touchState.id);
                         if (colorData) {
                             window.matchColor(dropZone, colorData);
@@ -675,6 +680,7 @@
 
         /**
          * إنشاء HTML لعينة لون واحدة.
+         * (محدثة: تشمل الاسم العربي والإنجليزي في الواجهة الخارجية)
          */
         const createColorSwatchHTML = (color, distance = null) => {
             const textColor = isLight(color.hex) ? 'text-gray-900' : 'text-white';
@@ -700,6 +706,7 @@
                 >
                     <div class="p-2 ${textColor} bg-black/50 text-right w-full">
                         <p class="font-bold text-sm ${shadowClass} leading-tight">${color.name}</p>
+                        <p class="font-semibold text-xs opacity-90 leading-tight">${color.englishName}</p> <!-- الاسم الإنجليزي مضاف هنا -->
                         <p class="font-mono text-xs opacity-80 leading-tight">${color.companyCode} | ${color.hex}</p>
                         ${deltaEText}
                     </div>
@@ -879,7 +886,7 @@
 
         window.showColorDetails = (colorId) => {
             // تجاهل النقر إذا كنا في وضع السحب
-            if (touchState.isDragging || touchState.id) {
+            if (touchState.isDragging || touchState.longPressTimer) {
                 return;
             }
             
@@ -1054,8 +1061,10 @@
         // ==============================================
         window.onload = () => {
             // ربط معالجات اللمس العامة (يجب أن يكون passive: false للتحكم في التمرير)
+            // هذا أمر حيوي لإيقاف التمرير الأصلي للمتصفح أثناء السحب المطول
             document.addEventListener('touchmove', window.handleTouchMove, { passive: false });
             document.addEventListener('touchend', window.handleTouchEnd);
+            document.addEventListener('touchcancel', window.handleTouchEnd); // لمعالجة الحالات التي يتم فيها إلغاء اللمس
 
             window.filterAndRenderCatalog(); 
             window.toggleSearchInputs();
