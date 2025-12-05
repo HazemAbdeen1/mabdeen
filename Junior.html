@@ -42,20 +42,38 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #94a3b8;
         }
-        /* Sticky comparison bar definition */
+
+        /* --- STICKY COMPARISON BAR FIX --- */
         .sticky-comparison {
             position: sticky;
             top: 0;
             z-index: 40;
-            /* Start hidden, only visible when colors are added */
+            overflow: hidden; /* Ensures transition of max-height works visually */
+            background-color: #f3f4f6;
+            border-bottom: 4px solid #9ca3af;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+
+            /* Hidden State: Completely disable interaction and collapse height */
             opacity: 0; 
             transform: translateY(-100%);
+            max-height: 0; /* Ensures it takes up no space vertically */
+            padding-top: 0; 
+            padding-bottom: 0; 
+            pointer-events: none; /* CRITICAL FIX: Stops click interception */
+
             transition: all 0.5s ease-out;
         }
         .sticky-comparison.visible {
+            /* Visible State: Restore interaction, height, and display */
             opacity: 1;
             transform: translateY(0);
+            max-height: 200px; /* Sufficient height to contain swatches and padding */
+            padding-top: 1rem; /* p-4 */
+            padding-bottom: 1rem; /* p-4 */
+            pointer-events: auto; /* Allow interaction */
         }
+        /* --- END FIX --- */
+
         /* Engineer Search input styling */
         .search-input-segment {
              width: 100%;
@@ -169,7 +187,8 @@
         </div>
 
         <!-- Header/Action Bar -->
-        <header class="bg-white text-white p-4 shadow-lg border-b-2 border-[#349bca]">
+        <!-- Ensure header buttons are always clickable (z-50) -->
+        <header class="bg-white p-4 shadow-lg border-b-2 border-[#349bca] relative z-50">
             <div class="container mx-auto flex justify-center sm:justify-between items-center flex-wrap gap-4">
                 <div class="flex space-x-4 space-x-reverse flex-wrap justify-center">
                     <button onclick="toggleModal('engineer-search-modal')" class="flex items-center bg-[#264765] hover:bg-[#349bca] text-white font-semibold py-2 px-4 rounded-lg transition duration-300 shadow-md text-sm sm:text-base">
@@ -189,7 +208,8 @@
         </header>
 
         <!-- Sticky Color Comparison Bar (FIXED and BIGGER) -->
-        <div id="comparison-bar" class="sticky-comparison w-full bg-gray-100 border-b-4 border-gray-400 p-4 pt-6 shadow-xl">
+        <!-- The padding/height logic is now controlled by the CSS .visible class for smooth transition -->
+        <div id="comparison-bar" class="sticky-comparison w-full shadow-xl">
             <div class="container mx-auto">
                 <div class="flex justify-between items-center mb-3">
                     <h2 class="text-lg font-bold text-gray-700 text-right">
@@ -246,7 +266,7 @@
         </main>
     </div>
 
-    <!-- MODALS (unchanged) -->
+    <!-- MODALS -->
 
     <!-- 1. Coverage Information Modal -->
     <div id="coverage-info-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 z-50 transition-opacity duration-300">
@@ -566,7 +586,7 @@
             }
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
+        function initializeApp() {
             const familyFilter = document.getElementById('color-family-filter');
             familyFilter.innerHTML = `<option value="">-- الكل / All --</option>`;
             ALL_FAMILIES_DATA.forEach(family => {
@@ -581,9 +601,9 @@
 
             renderColorGrid(PAINT_COLORS);
             updateComparisonBar(); 
+        }
 
-            lucide.createIcons();
-        });
+        document.addEventListener('DOMContentLoaded', initializeApp);
 
 
         function renderColorGrid(colors) {
@@ -709,13 +729,13 @@
             });
 
             if (selectedColors.length === 0) {
-                // Hide comparison bar (transition up)
+                // Hide comparison bar (transition up, collapse height, disable pointer events)
                 comparisonBar.classList.remove('visible');
                 // Show placeholder
                 placeholder.classList.remove('hidden');
                 clearBtn.disabled = true;
             } else {
-                // Show comparison bar (transition down)
+                // Show comparison bar (transition down, enable pointer events)
                 comparisonBar.classList.add('visible');
                 // Hide placeholder
                 placeholder.classList.add('hidden');
@@ -856,6 +876,9 @@
 
             resultsDiv.classList.remove('hidden');
         }
+
+        // FIX: Ensure Lucide icons are created immediately upon script execution
+        lucide.createIcons();
 
     </script>
 </body>
