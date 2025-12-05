@@ -211,7 +211,7 @@
             </div>
             
             <p class="text-gray-600 text-sm flex items-center justify-end mt-4">
-                <span data-lucide="info" class="w-4 h-4 ml-1"></span> للسحب والإفلات على الجوال، اضغط مطولاً واسحب اللون.
+                <span data-lucide="info" class="w-4 h-4 ml-1"></span> للسحب والإفلات على الجوال، اضغط مطولاً (أكثر من نصف ثانية) ثم اسحب.
             </p>
 
             <!-- حاوية عرض الألوان -->
@@ -438,10 +438,173 @@
             { id: 'c10', name: 'بيج رملي', englishName: 'Sand Beige', brand: 'Junior Paints', companyCode: 'JP-D3D', family: 'محايد', usage: ['داخلي'], hex: '#D3D3D3', r: 211, g: 211, b: 211, l: 84.7, a: 0.0, bVal: 0.0 },
         ];
         
-        // حالة السحب للأجهزة التي تعمل باللمس
-        let currentDragData = {
+        // ==============================================
+        //  آلة حالة اللمس (Touch State Machine)
+        //  لضمان سحب وإفلات موثوق على شاشات اللمس
+        // ==============================================
+        let touchState = {
             id: null,
-            element: null, // العنصر الوهمي (clone) الذي يتم سحبه
+            startX: 0,
+            startY: 0,
+            startTime: 0,
+            isDragging: false,
+            cloneElement: null,
+            longPressTimer: null
+        };
+        const LONG_PRESS_THRESHOLD = 500; // 500ms for drag initiation
+        const DRAG_TOLERANCE = 10; // Pixel tolerance for recognizing movement as scroll vs. drag
+        
+        /**
+         * تبدأ عملية اللمس.
+         * تخزن الإحداثيات وتبدأ عداد الضغط المطول.
+         */
+        window.handleTouchStart = (event, colorId) => {
+            // تجاهل اللمسات الإضافية إذا كان السحب نشطاً بالفعل
+            if (touchState.isDragging || touchState.longPressTimer) {
+                event.preventDefault();
+                return;
+            }
+
+            const touch = event.touches[0];
+            if (!touch) return;
+
+            // إعادة تعيين الحالة والتقاط البيانات الأولية
+            touchState.id = colorId;
+            touchState.startX = touch.clientX;
+            touchState.startY = touch.clientY;
+            touchState.startTime = Date.now();
+            touchState.isDragging = false;
+            
+            // بدء مؤقت لبدء محاكاة السحب بعد الضغط المطول
+            touchState.longPressTimer = setTimeout(() => {
+                // إذا لم يتم إلغاء العداد بالحركة (touchmove)، نبدأ السحب
+                if (touchState.id) {
+                    startTouchDragSimulation(event.currentTarget, colorId, touch);
+                }
+            }, LONG_PRESS_THRESHOLD);
+        };
+        
+        /**
+         * تبدأ محاكاة السحب المرئي (بإنشاء عنصر وهمي).
+         */
+        const startTouchDragSimulation = (originalElement, colorId, touch) => {
+            if (touchState.cloneElement) return; 
+            
+            const colorData = initialColors.find(c => c.id === colorId);
+            if (!colorData) return;
+
+            // 1. إنشاء العنصر الوهمي
+            const clone = originalElement.cloneNode(true);
+            clone.id = 'touch-drag-clone';
+            
+            // نسخ الحجم من العنصر الأصلي
+            clone.style.width = originalElement.offsetWidth + 'px';
+            clone.style.height = originalElement.offsetHeight + 'px';
+
+            // إزالة الأحداث الأصلية من العنصر الوهمي
+            clone.removeAttribute('ondragstart');
+            clone.removeAttribute('ontouchstart');
+            clone.onclick = (e) => e.preventDefault(); 
+
+            document.body.appendChild(clone);
+            
+            // تحديث الحالة
+            touchState.isDragging = true;
+            touchState.cloneElement = clone;
+
+            // تحديث الموضع الأولي
+            clone.style.left = touch.clientX + 'px';
+            clone.style.top = touch.clientY + 'px';
+            
+            // إظهار مناطق الإفلات المحتملة
+            document.querySelectorAll('.matcher-slot-small').forEach(dz => {
+                if (!dz.classList.contains('matcher-slot-filled')) {
+                    dz.classList.add('drag-over');
+                }
+            });
+        };
+
+
+        /**
+         * تتعقب حركة الأصبع.
+         * تمنع التمرير إذا بدأ السحب أو تلغي العداد إذا كانت الحركة سريعة (تمرير).
+         */
+        window.handleTouchMove = (event) => {
+            const touch = event.touches[0];
+            if (!touch) return;
+            
+            const dx = Math.abs(touch.clientX - touchState.startX);
+            const dy = Math.abs(touch.clientY - touchState.startY);
+
+            // إذا تحرك الأصبع قبل بدء السحب (بمعنى أن المستخدم يريد التمرير)
+            if (!touchState.isDragging && (dx > DRAG_TOLERANCE || dy > DRAG_TOLERANCE)) {
+                clearTimeout(touchState.longPressTimer);
+                touchState.id = null; // إلغاء السحب المحتمل
+            }
+
+            // إذا بدأ السحب بالفعل، حرّك العنصر الوهمي ومنع التمرير
+            if (touchState.isDragging && touchState.cloneElement) {
+                event.preventDefault(); // منع سلوك المتصفح الافتراضي (التمرير)
+                // تحديث موقع العنصر الوهمي
+                touchState.cloneElement.style.left = touch.clientX + 'px';
+                touchState.cloneElement.style.top = touch.clientY + 'px';
+            }
+        };
+
+        /**
+         * تُطلق عند رفع الأصبع.
+         * تحدد إذا ما تم الإفلات في منطقة صحيحة.
+         */
+        window.handleTouchEnd = (event) => {
+            clearTimeout(touchState.longPressTimer);
+            
+            if (!touchState.isDragging) {
+                // ليس سحباً (نقرة سريعة أو تمرير تم إلغاؤه)، والسلوك الافتراضي مسموح به، لذا تنتهي الوظيفة
+                resetTouchState();
+                return;
+            }
+            
+            // الآن تم التأكد من أنها عملية سحب (isDragging = true)
+            const touch = event.changedTouches[0];
+            if (touch) {
+                // الحصول على قائمة العناصر الموجودة أسفل نقطة نهاية اللمس
+                const elements = document.elementsFromPoint(touch.clientX, touch.clientY);
+                
+                for (const el of elements) {
+                    // التحقق من أن العنصر هو منطقة مطابقة وغير مملوءة
+                    if (el.id && el.id.startsWith('matcher-slot-') && !el.classList.contains('matcher-slot-filled')) {
+                        const dropZone = el;
+                        const colorData = initialColors.find(c => c.id === touchState.id);
+                        if (colorData) {
+                            window.matchColor(dropZone, colorData);
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            // تنظيف وإعادة تعيين حالة اللمس
+            resetTouchState();
+        };
+
+        const resetTouchState = () => {
+            // إزالة العنصر الوهمي إذا كان موجوداً
+            if (touchState.cloneElement) {
+                touchState.cloneElement.remove();
+            }
+            // إزالة التمييز من جميع مناطق الإفلات
+            document.querySelectorAll('.matcher-slot-small').forEach(dz => {
+                dz.classList.remove('drag-over');
+            });
+            
+            // إعادة تعيين الحالة
+            touchState.id = null;
+            touchState.startX = 0;
+            touchState.startY = 0;
+            touchState.startTime = 0;
+            touchState.isDragging = false;
+            touchState.cloneElement = null;
+            touchState.longPressTimer = null;
         };
 
 
@@ -505,7 +668,7 @@
         // ==============================================
 
         /**
-         * إنشاء HTML لعينة لون واحدة. تم إضافة ontouchstart لدعم الأجهزة اللمسية.
+         * إنشاء HTML لعينة لون واحدة.
          */
         const createColorSwatchHTML = (color, distance = null) => {
             const textColor = isLight(color.hex) ? 'text-gray-900' : 'text-white';
@@ -593,7 +756,7 @@
         };
         
         // ==============================================
-        //  وظائف السحب والإفلات (Drag & Drop) - للمتصفحات العادية
+        //  وظائف السحب والإفلات (Drag & Drop) - للمتصفحات العادية ومناطق الإفلات
         // ==============================================
 
         window.drag = (ev, colorId) => {
@@ -685,143 +848,6 @@
         };
         
         // ==============================================
-        //  وظائف السحب والإفلات (Touch Drag & Drop) - للأجهزة اللمسية
-        // ==============================================
-
-        let touchStartTime = 0;
-        const LONG_PRESS_THRESHOLD = 500; // 500ms
-
-        window.handleTouchStart = (event, colorId) => {
-            touchStartTime = Date.now();
-            
-            // Allow native scroll/click behavior initially
-            // We check for long press in touchEnd
-            
-            // If dragging is already happening, ignore new touch start
-            if (currentDragData.id) {
-                event.preventDefault();
-                return;
-            }
-            
-            // Store the ID temporarily
-            currentDragData.id = colorId;
-            
-            // Prevent the default touch behavior if it's a long press
-            setTimeout(() => {
-                if (currentDragData.id === colorId && Date.now() - touchStartTime >= LONG_PRESS_THRESHOLD) {
-                    // It's a long press, start the drag simulation
-                    startTouchDrag(event, colorId);
-                }
-            }, LONG_PRESS_THRESHOLD);
-        };
-        
-        const startTouchDrag = (event, colorId) => {
-            event.preventDefault(); // Prevent scrolling/default behavior once drag starts
-
-            const originalElement = event.currentTarget;
-            const colorData = initialColors.find(c => c.id === colorId);
-
-            if (!colorData) return;
-
-            // 1. Create the clone element for visual feedback
-            const clone = originalElement.cloneNode(true);
-            clone.id = 'touch-drag-clone';
-            clone.style.width = originalElement.offsetWidth + 'px';
-            clone.style.height = originalElement.offsetHeight + 'px';
-            
-            // Remove event listeners from clone
-            clone.removeAttribute('ondragstart');
-            clone.removeAttribute('ontouchstart');
-            clone.onclick = (e) => e.preventDefault(); // Disable click handler during drag
-
-            document.body.appendChild(clone);
-            currentDragData.element = clone;
-            currentDragData.id = colorId;
-
-            // 2. Set initial position
-            const touch = event.touches[0];
-            clone.style.left = touch.clientX + 'px';
-            clone.style.top = touch.clientY + 'px';
-
-             // Highlight all drop zones (visual feedback)
-            document.querySelectorAll('.matcher-slot-small').forEach(dz => {
-                if (!dz.classList.contains('matcher-slot-filled')) {
-                    dz.classList.add('drag-over');
-                }
-            });
-        };
-
-        window.handleTouchMove = (event) => {
-            if (!currentDragData.element) return;
-
-            event.preventDefault(); // Stop scrolling during drag
-
-            const touch = event.touches[0];
-            if (touch) {
-                // Update the clone's position
-                currentDragData.element.style.left = touch.clientX + 'px';
-                currentDragData.element.style.top = touch.clientY + 'px';
-            }
-        };
-
-        window.handleTouchEnd = (event) => {
-            // Check if it was a quick tap/click
-            if (Date.now() - touchStartTime < LONG_PRESS_THRESHOLD && currentDragData.id) {
-                 // It was a tap, clear the temporary ID and let the onclick handle it
-                const colorId = currentDragData.id;
-                currentDragData.id = null;
-                // Since default was not prevented, the click event will fire naturally
-                return;
-            }
-            
-            if (!currentDragData.element) return;
-
-            // 1. Get final touch point
-            const touch = event.changedTouches[0];
-            if (!touch) {
-                cleanupTouchDrag();
-                return;
-            }
-
-            // 2. Find elements under the final touch point
-            const elements = document.elementsFromPoint(touch.clientX, touch.clientY);
-            let dropped = false;
-
-            // 3. Check if any drop zone was targeted
-            for (const el of elements) {
-                if (el.id && el.id.startsWith('matcher-slot-') && !el.classList.contains('matcher-slot-filled')) {
-                    const dropZone = el;
-                    const colorData = initialColors.find(c => c.id === currentDragData.id);
-                    if (colorData) {
-                        window.matchColor(dropZone, colorData);
-                        dropped = true;
-                        break;
-                    }
-                }
-            }
-            
-            cleanupTouchDrag();
-        };
-        
-        const cleanupTouchDrag = () => {
-            // Remove the clone and reset state
-            if (currentDragData.element) {
-                currentDragData.element.remove();
-            }
-             // Remove highlighting from all drop zones
-            document.querySelectorAll('.matcher-slot-small').forEach(dz => {
-                dz.classList.remove('drag-over');
-            });
-            currentDragData.id = null;
-            currentDragData.element = null;
-        };
-        
-        // Attach global touch listeners for move and end phases
-        document.addEventListener('touchmove', window.handleTouchMove, { passive: false });
-        document.addEventListener('touchend', window.handleTouchEnd);
-
-
-        // ==============================================
         //  وظائف المودال (Popups)
         // ==============================================
 
@@ -846,6 +872,11 @@
         };
 
         window.showColorDetails = (colorId) => {
+            // تجاهل النقر إذا كنا في وضع السحب
+            if (touchState.isDragging || touchState.id) {
+                return;
+            }
+            
             const color = initialColors.find(c => c.id === colorId);
             if (!color) return;
 
@@ -1016,6 +1047,10 @@
         //  وظيفة التهيئة عند التحميل
         // ==============================================
         window.onload = () => {
+            // ربط معالجات اللمس العامة
+            document.addEventListener('touchmove', window.handleTouchMove, { passive: false });
+            document.addEventListener('touchend', window.handleTouchEnd);
+
             window.filterAndRenderCatalog(); 
             window.toggleSearchInputs();
         };
