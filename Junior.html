@@ -26,13 +26,11 @@
         }
         
         /* ------------------------------------------- */
-        /* Fix 2: Matcher Position & Sizing (Sticky/Fixed) */
+        /* Fixes for Matcher Slots */
         /* ------------------------------------------- */
-        /* لا حاجة لتنسيقات الموقع هنا، سيتم استخدام Tailwind's sticky */
-        
-        /* Fix 2: Increased size for comparison slots (96px) */
+        /* Fix 1: Increased size for comparison slots (h-[120px]) */
         .matcher-slot-small {
-            height: 96px; /* Increased size (h-24) */
+            height: 120px; /* Custom size for bigger target */
             min-width: 96px;
             width: 33.333%; /* Ensure equal width on mobile */
             transition: background-color 0.2s ease, border-color 0.2s ease;
@@ -40,7 +38,7 @@
             padding: 0; 
         }
         
-        /* Fix 2: Ensure touching slots are perfectly aligned horizontally on mobile */
+        /* Ensure touching slots are perfectly aligned horizontally on mobile */
         .touching-slots {
             display: flex;
             width: 100%;
@@ -72,6 +70,19 @@
         }
         .modal {
             transition: opacity 0.2s ease;
+        }
+        
+        /* Style for the simulated dragged element on touch devices */
+        #touch-drag-clone {
+            position: fixed;
+            pointer-events: none; /* Crucial: allows events to pass through */
+            z-index: 9999;
+            opacity: 0.85;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            width: 150px; /* Same width as catalog swatch */
+            height: 150px;
+            border-radius: 0.75rem;
         }
     </style>
 </head>
@@ -114,13 +125,13 @@
             <p class="text-gray-600 mt-2 text-sm">استخدم هذه الأداة لإيجاد أقرب تطابق لوني عبر إدخال أكواد RGB أو LAB أو HEX بدقة عالية. (يتم عرض أقرب لونين فقط).</p>
         </div>
         
-        <!-- Fix 2: قسم أدوات المطابقة (Color Matcher) - أصبح ملتصقًا عند التمرير (Sticky) -->
+        <!-- قسم أدوات المطابقة (Color Matcher) - أصبح ملتصقًا عند التمرير (Sticky) -->
         <div id="sticky-matcher-container" 
              class="lg:w-full p-4 mb-8 bg-white rounded-xl shadow-lg border border-gray-200 sticky top-20 z-30">
             <!-- top-20 (80px) ensures it sticks just below the fixed header -->
             <h3 class="text-lg font-bold text-[#264765] mb-3">مقارنة 3 ألوان (لأغراض التصميم)</h3>
             <div id="matcher-slots-container" class="lg:flex lg:space-x-4 rtl:space-x-reverse touching-slots">
-                <!-- خانات المطابقة (3 فقط) - أصبحت أكبر -->
+                <!-- خانات المطابقة (3 فقط) - أصبحت أكبر (h-[120px]) -->
                 <div id="matcher-slot-1" 
                     class="matcher-slot-small flex items-center justify-center border-4 border-dashed border-gray-300 bg-gray-100 p-2 text-center text-gray-500 font-semibold text-xs lg:w-full lg:rounded-lg"
                     ondrop="window.drop(event)" ondragover="window.allowDrop(event)" ondragleave="window.dragLeave(event)">
@@ -200,7 +211,7 @@
             </div>
             
             <p class="text-gray-600 text-sm flex items-center justify-end mt-4">
-                <span data-lucide="info" class="w-4 h-4 ml-1"></span> للبحث السريع استخدم (Ctrl+F).
+                <span data-lucide="info" class="w-4 h-4 ml-1"></span> للسحب والإفلات على الجوال، اضغط مطولاً واسحب اللون.
             </p>
 
             <!-- حاوية عرض الألوان -->
@@ -264,7 +275,6 @@
 
                 <!-- المعاينة والبحث -->
                 <div class="flex items-center space-x-4 rtl:space-x-reverse border-t pt-4">
-                    <!-- Fix 1: تم إضافة كلاسات للعرض المرن لإظهار رسالة LAB -->
                     <div id="input-color-preview" class="w-12 h-12 rounded-lg border-2 border-gray-300 flex-shrink-0" style="background-color: #f3f4f6;"></div>
                     <div>
                         <p class="text-sm font-bold">اللون المدخل:</p>
@@ -427,6 +437,13 @@
             { id: 'c9', name: 'برتقالي شمسي', englishName: 'Sun Orange', brand: 'Junior Paints', companyCode: 'JP-FFA', family: 'أصفر', usage: ['خارجي'], hex: '#FFA500', r: 255, g: 165, b: 0, l: 79.4, a: 24.3, bVal: 82.3 },
             { id: 'c10', name: 'بيج رملي', englishName: 'Sand Beige', brand: 'Junior Paints', companyCode: 'JP-D3D', family: 'محايد', usage: ['داخلي'], hex: '#D3D3D3', r: 211, g: 211, b: 211, l: 84.7, a: 0.0, bVal: 0.0 },
         ];
+        
+        // حالة السحب للأجهزة التي تعمل باللمس
+        let currentDragData = {
+            id: null,
+            element: null, // العنصر الوهمي (clone) الذي يتم سحبه
+        };
+
 
         // ==============================================
         //  وظائف مساعدة لتحويل الألوان (مطلوبة للبحث المتقدم)
@@ -467,7 +484,7 @@
         }
 
         const calculateDeltaE = (lab1, lab2) => {
-            // Delta E 1976 (Euclidean distance) - مناسب لمتطلبات المهندسين الفنية
+            // Delta E 1976 (Euclidean distance)
             const dL = lab1.l - lab2.l;
             const dA = lab1.a - lab2.a;
             const dB = lab1.b - lab2.b;
@@ -488,7 +505,7 @@
         // ==============================================
 
         /**
-         * إنشاء HTML لعينة لون واحدة.
+         * إنشاء HTML لعينة لون واحدة. تم إضافة ontouchstart لدعم الأجهزة اللمسية.
          */
         const createColorSwatchHTML = (color, distance = null) => {
             const textColor = isLight(color.hex) ? 'text-gray-900' : 'text-white';
@@ -508,6 +525,7 @@
                     style="background-color: ${color.hex};"
                     draggable="true"
                     ondragstart="window.drag(event, '${color.id}')"
+                    ontouchstart="window.handleTouchStart(event, '${color.id}')"
                     onclick="window.showColorDetails('${color.id}')"
                     data-color-id="${color.id}"
                 >
@@ -575,7 +593,7 @@
         };
         
         // ==============================================
-        //  وظائف السحب والإفلات (Drag & Drop) 
+        //  وظائف السحب والإفلات (Drag & Drop) - للمتصفحات العادية
         // ==============================================
 
         window.drag = (ev, colorId) => {
@@ -666,6 +684,143 @@
             }
         };
         
+        // ==============================================
+        //  وظائف السحب والإفلات (Touch Drag & Drop) - للأجهزة اللمسية
+        // ==============================================
+
+        let touchStartTime = 0;
+        const LONG_PRESS_THRESHOLD = 500; // 500ms
+
+        window.handleTouchStart = (event, colorId) => {
+            touchStartTime = Date.now();
+            
+            // Allow native scroll/click behavior initially
+            // We check for long press in touchEnd
+            
+            // If dragging is already happening, ignore new touch start
+            if (currentDragData.id) {
+                event.preventDefault();
+                return;
+            }
+            
+            // Store the ID temporarily
+            currentDragData.id = colorId;
+            
+            // Prevent the default touch behavior if it's a long press
+            setTimeout(() => {
+                if (currentDragData.id === colorId && Date.now() - touchStartTime >= LONG_PRESS_THRESHOLD) {
+                    // It's a long press, start the drag simulation
+                    startTouchDrag(event, colorId);
+                }
+            }, LONG_PRESS_THRESHOLD);
+        };
+        
+        const startTouchDrag = (event, colorId) => {
+            event.preventDefault(); // Prevent scrolling/default behavior once drag starts
+
+            const originalElement = event.currentTarget;
+            const colorData = initialColors.find(c => c.id === colorId);
+
+            if (!colorData) return;
+
+            // 1. Create the clone element for visual feedback
+            const clone = originalElement.cloneNode(true);
+            clone.id = 'touch-drag-clone';
+            clone.style.width = originalElement.offsetWidth + 'px';
+            clone.style.height = originalElement.offsetHeight + 'px';
+            
+            // Remove event listeners from clone
+            clone.removeAttribute('ondragstart');
+            clone.removeAttribute('ontouchstart');
+            clone.onclick = (e) => e.preventDefault(); // Disable click handler during drag
+
+            document.body.appendChild(clone);
+            currentDragData.element = clone;
+            currentDragData.id = colorId;
+
+            // 2. Set initial position
+            const touch = event.touches[0];
+            clone.style.left = touch.clientX + 'px';
+            clone.style.top = touch.clientY + 'px';
+
+             // Highlight all drop zones (visual feedback)
+            document.querySelectorAll('.matcher-slot-small').forEach(dz => {
+                if (!dz.classList.contains('matcher-slot-filled')) {
+                    dz.classList.add('drag-over');
+                }
+            });
+        };
+
+        window.handleTouchMove = (event) => {
+            if (!currentDragData.element) return;
+
+            event.preventDefault(); // Stop scrolling during drag
+
+            const touch = event.touches[0];
+            if (touch) {
+                // Update the clone's position
+                currentDragData.element.style.left = touch.clientX + 'px';
+                currentDragData.element.style.top = touch.clientY + 'px';
+            }
+        };
+
+        window.handleTouchEnd = (event) => {
+            // Check if it was a quick tap/click
+            if (Date.now() - touchStartTime < LONG_PRESS_THRESHOLD && currentDragData.id) {
+                 // It was a tap, clear the temporary ID and let the onclick handle it
+                const colorId = currentDragData.id;
+                currentDragData.id = null;
+                // Since default was not prevented, the click event will fire naturally
+                return;
+            }
+            
+            if (!currentDragData.element) return;
+
+            // 1. Get final touch point
+            const touch = event.changedTouches[0];
+            if (!touch) {
+                cleanupTouchDrag();
+                return;
+            }
+
+            // 2. Find elements under the final touch point
+            const elements = document.elementsFromPoint(touch.clientX, touch.clientY);
+            let dropped = false;
+
+            // 3. Check if any drop zone was targeted
+            for (const el of elements) {
+                if (el.id && el.id.startsWith('matcher-slot-') && !el.classList.contains('matcher-slot-filled')) {
+                    const dropZone = el;
+                    const colorData = initialColors.find(c => c.id === currentDragData.id);
+                    if (colorData) {
+                        window.matchColor(dropZone, colorData);
+                        dropped = true;
+                        break;
+                    }
+                }
+            }
+            
+            cleanupTouchDrag();
+        };
+        
+        const cleanupTouchDrag = () => {
+            // Remove the clone and reset state
+            if (currentDragData.element) {
+                currentDragData.element.remove();
+            }
+             // Remove highlighting from all drop zones
+            document.querySelectorAll('.matcher-slot-small').forEach(dz => {
+                dz.classList.remove('drag-over');
+            });
+            currentDragData.id = null;
+            currentDragData.element = null;
+        };
+        
+        // Attach global touch listeners for move and end phases
+        document.addEventListener('touchmove', window.handleTouchMove, { passive: false });
+        document.addEventListener('touchend', window.handleTouchEnd);
+
+
         // ==============================================
         //  وظائف المودال (Popups)
         // ==============================================
@@ -766,7 +921,7 @@
                     inputValues = `L:${l || '0'}, A:${a || '0'}, B:${bVal || '0'}`; 
                     if (isNaN(l) || isNaN(a) || isNaN(bVal) || l < 0 || l > 100) throw new Error("تنسيق LAB غير صالح (L: 0-100).");
                     
-                    // Fix 1: لا يمكن تحويل LAB إلى HEX/RGB بشكل موثوق وسهل. نستخدم لونًا محايدًا للعينة.
+                    // المعاينة البصرية غير متاحة لـ LAB
                     hexForPreview = '#e5e7eb'; // لون رمادي فاتح ثابت
                     targetLab = { l, a, b: bVal };
                 }
@@ -807,7 +962,7 @@
 
             displayElement.textContent = `${label}: ${inputValues}`;
 
-            // Fix 1: إذا تم اختيار LAB، أظهر رسالة واضحة في المعاينة
+            // إذا تم اختيار LAB، أظهر رسالة واضحة في المعاينة
             if (processedType === 'lab') {
                 previewElement.classList.add('flex', 'items-center', 'justify-center', 'text-center', 'p-1');
                 previewElement.innerHTML = '<span class="text-xs text-gray-500 font-bold leading-tight">معاينة LAB غير متاحة</span>';
