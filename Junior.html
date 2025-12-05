@@ -80,8 +80,7 @@
             opacity: 0.85;
             transform: translate(-50%, -50%);
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            width: 150px; /* Same width as catalog swatch */
-            height: 150px;
+            /* Dimensions are set dynamically in JS */
             border-radius: 0.75rem;
         }
     </style>
@@ -439,8 +438,7 @@
         ];
         
         // ==============================================
-        //  آلة حالة اللمس (Touch State Machine)
-        //  لضمان سحب وإفلات موثوق على شاشات اللمس
+        //  آلة حالة اللمس (Touch State Machine) - (محسنة لتحديد الإفلات)
         // ==============================================
         let touchState = {
             id: null,
@@ -553,13 +551,13 @@
 
         /**
          * تُطلق عند رفع الأصبع.
-         * تحدد إذا ما تم الإفلات في منطقة صحيحة.
+         * تستخدم الآن حساب Bounding Box لتحديد الإفلات بدقة.
          */
         window.handleTouchEnd = (event) => {
             clearTimeout(touchState.longPressTimer);
             
             if (!touchState.isDragging) {
-                // ليس سحباً (نقرة سريعة أو تمرير تم إلغاؤه)، والسلوك الافتراضي مسموح به، لذا تنتهي الوظيفة
+                // ليس سحباً (نقرة سريعة)، والسلوك الافتراضي مسموح به
                 resetTouchState();
                 return;
             }
@@ -567,20 +565,28 @@
             // الآن تم التأكد من أنها عملية سحب (isDragging = true)
             const touch = event.changedTouches[0];
             if (touch) {
-                // الحصول على قائمة العناصر الموجودة أسفل نقطة نهاية اللمس
-                const elements = document.elementsFromPoint(touch.clientX, touch.clientY);
-                
-                for (const el of elements) {
-                    // التحقق من أن العنصر هو منطقة مطابقة وغير مملوءة
-                    if (el.id && el.id.startsWith('matcher-slot-') && !el.classList.contains('matcher-slot-filled')) {
-                        const dropZone = el;
+                const touchX = touch.clientX;
+                const touchY = touch.clientY;
+                let dropped = false;
+
+                // التحقق من الإفلات باستخدام Bounding Boxes (أكثر موثوقية على الجوال)
+                document.querySelectorAll('.matcher-slot-small').forEach(dropZone => {
+                    if (dropZone.classList.contains('matcher-slot-filled')) return; // تجاهل الخانات المملوءة
+
+                    const rect = dropZone.getBoundingClientRect();
+
+                    // التحقق مما إذا كانت إحداثيات اللمس داخل مستطيل منطقة الإفلات
+                    if (touchX >= rect.left && touchX <= rect.right &&
+                        touchY >= rect.top && touchY <= rect.bottom) {
+                        
+                        // تم الإفلات بنجاح!
                         const colorData = initialColors.find(c => c.id === touchState.id);
                         if (colorData) {
                             window.matchColor(dropZone, colorData);
-                            break;
+                            dropped = true;
                         }
                     }
-                }
+                });
             }
             
             // تنظيف وإعادة تعيين حالة اللمس
@@ -1047,7 +1053,7 @@
         //  وظيفة التهيئة عند التحميل
         // ==============================================
         window.onload = () => {
-            // ربط معالجات اللمس العامة
+            // ربط معالجات اللمس العامة (يجب أن يكون passive: false للتحكم في التمرير)
             document.addEventListener('touchmove', window.handleTouchMove, { passive: false });
             document.addEventListener('touchend', window.handleTouchEnd);
 
