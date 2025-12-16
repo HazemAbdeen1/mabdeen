@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 
-   <head>
+  <head>
     <!-- Your original Basic SEO and Meta Tags -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,8 +11,8 @@
     <meta name="description" data-lang-ar="معمل الشام للكيماويات: متخصصون في إنتاج وتوزيع الدهانات (الفردوس، الأفق، ماف شيك، جونيور)، الألكيدات، أحبار الطباعة، والمذيبات. خبرة وجودة منذ عام 1954." data-lang-en="Al-Cham Chemical Plant: Specialists in the production and distribution of paints (AL FIRDOSS, AL OFOK, Maf chique, Junior), alkyds, printing inks, and solvents. Quality and expertise since 1954." data-lang-tr="Al-Cham Kimya Fabrikası: Boya (AL FIRDOSS, AL OFOK, Maf chique, Junior), alkid, baskı mürekkebi ve çözücü üretim ve dağıtımında uzmanız. 1954'ten beri kalite ve uzmanlık." data-lang-fr="Al-Cham Chemical Plant : Spécialistes de la production et de la distribution de peintures (AL FIRDOSS, AL OFOK, Maf chique, Junior), d'alkydes, d'encres d'imprimerie et de solvants. Qualité et expertise depuis 1954.">
     <meta name="keywords" data-lang-ar="معمل الشام, دهانات, الفردوس, الأفق, ماف شيك, جونيور, ألكيدات, أحبار طباعة, مذيبات, وايت سبيريت, سوريا, دمشق, ديكور, مائية, زيتية, وايت سبيريت, كيروسين, كيماويات, عابدين, مصنع, شركة مصطفى عابدين وشركاه, مواد بناء" data-lang-en="Al-Cham Chemical Plant, Paints, AL FIRDOSS, AL OFOK, Maf chique, Junior, Alkyds, Printing Inks, Solvents, Abdeen, best paints, Mustafa Abdeen and Partners, White Spirit, Chemicals, Building Materials, Syria, Damascus, Decorative,">
     
-    <!-- FIX: The canonical tag's default href now uses the consistent domain: madbeen.com -->
-    <link rel="canonical" id="canonical-tag" href="https://madbeen.com/?lang=ar">
+    <!-- FIX: The canonical tag is set statically to the base domain (no dynamic script to cause conflicts). -->
+    <link rel="canonical" href="https://madbeen.com/">
     
     <!-- FIX: Open Graph tags now use the consistent domain: madbeen.com -->
     <meta property="og:title" content="Al-Cham Chemical Plant | Paints, Alkyds, Printing Inks, and Solvents">
@@ -161,20 +161,7 @@
     <link rel="alternate" hreflang="fr" href="https://madbeen.com/?lang=fr" />
     <link rel="alternate" hreflang="x-default" href="https://madbeen.com/?lang=ar" />
     
-    <!-- MODIFICATION: This JavaScript now executes immediately without waiting for DOMContentLoaded to prevent any potential conflicts with other scripts. -->
-    <script>
-        const currentLang = new URLSearchParams(window.location.search).get('lang');
-        const canonicalTag = document.getElementById('canonical-tag');
-        
-        if (canonicalTag) {
-            if (currentLang) {
-                canonicalTag.setAttribute('href', `https://madbeen.com/?lang=${currentLang}`);
-            } else {
-                // If there's no lang parameter, set the canonical to the default URL
-                canonicalTag.setAttribute('href', 'https://madbeen.com/?lang=ar');
-            }
-        }
-    </script>
+    <!-- Removed the JavaScript script that was causing potential conflicts with the popup functionality. -->
 </head>
     
 <body class="bg-gray-50 text-gray-800">
