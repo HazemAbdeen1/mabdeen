@@ -280,7 +280,7 @@
         </div>
 
         <div class="mt-8 text-center">
-            <a href="./index.html" class="inline-block bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700">Back to Main Application</a>
+            <a href="CRM/market.html" class="inline-block bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700">Back to Main Application</a>
         </div>
     </main>
 
@@ -381,7 +381,7 @@
                             // Check user role for access control to this page
                             if (currentUser.role !== 'admin' && currentUser.role !== 'salesperson') {
                                 showToast("Access Denied: You do not have permission to view this page.");
-                                window.location.href = './index.html'; // Redirect if not authorized
+                                window.location.href = './CRM/market.html'; // Redirect if not authorized
                                 return;
                             }
 
@@ -430,20 +430,20 @@
                             console.warn("User profile not found in Firestore for UID:", firebaseUser.uid);
                             await auth.signOut();
                             sessionStorage.removeItem('currentUser'); // Clear any lingering session data
-                            window.location.href = './index.html'; // Redirect to login
+                            window.location.href = './CRM/market.html'; // Redirect to login
                         }
                     } catch (error) {
                         console.error("Error fetching user profile on startup:", error);
                         showToast("Error loading user session: " + error.message);
                         await auth.signOut();
                         sessionStorage.removeItem('currentUser'); // Clear any lingering session data
-                        window.location.href = './index.html'; // Redirect to login
+                        window.location.href = './CRM/market.html'; // Redirect to login
                     }
                 } else {
                     // No user is signed in, redirect to login page
                     console.log("No Firebase user authenticated. Redirecting to login.");
                     sessionStorage.removeItem('currentUser'); // Clear any lingering session data
-                    window.location.href = './index.html';
+                    window.location.href = './CRM/market.html';
                 }
             });
         }
@@ -477,7 +477,7 @@
         async function handleLogout() {
             await auth.signOut();
             sessionStorage.removeItem('currentUser'); // Clear session storage
-            window.location.href = './index.html'; // Redirect to main login page
+            window.location.href = './CRM/market.html'; // Redirect to main login page
         }
 
         function switchTab(tabId) {
