@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistics & Salesperson Tracking</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Firebase SDKs - Using version 12.0.0 -->
+    <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore-compat.js"></script>
+    <!-- Chart.js CDN for charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+    <style>
+        .hidden { display: none !important; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .tab-button.active {
+            border-color: #3B82F6; /* blue-500 */
+            color: #2563EB; /* blue-600 */
+        }
+        /* Basic styling for charts to ensure they are responsive */
+        .chart-container {
+            position: relative;
+            height: 400px; /* Adjust as needed */
+            width: 100%;
+            margin-bottom: 2rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="bg-white shadow">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+            <div class="flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <h1 class="text-xl font-bold text-gray-900">Reports & Tracking</h1>
+            </div>
+            <div class="flex items-center">
+                <div class="mr-4 text-right">
+                    <span class="block text-sm text-gray-700" id="userDisplay">User Name</span>
+                    <span class="block text-xs text-gray-500" id="roleDisplay">Role</span>
+                </div>
+                <button id="logoutBtn" class="bg-gray-200 text-gray-700 py-1 px-3 rounded-md hover:bg-gray-300">
+                    Logout
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div class="border-b border-gray-200 mb-6">
+            <nav class="-mb-px flex space-x-8">
+                <button id="statisticsTabBtn" class="tab-button whitespace-nowrap py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300" data-tab="statistics-content">
+                    Statistics Overview
+                </button>
+                <button id="salespersonTrackingTabBtn" class="tab-button whitespace-nowrap py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300" data-tab="salesperson-tracking-content">
+                    Salesperson Tracking
+                </button>
+            </nav>
+        </div>
+
+        <!-- Statistics Content -->
+        <div id="statistics-content" class="tab-content bg-white shadow rounded-lg p-6 mb-6">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-900">Statistics Overview</h2>
+                <button id="exportAllDataBtn" class="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    Export All Data to CSV
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                <!-- Customer Status Distribution -->
+                <div class="bg-blue-50 p-4 rounded-lg shadow-sm border border-blue-200">
+                    <h3 class="text-lg font-semibold text-blue-800 mb-2">Customer Status Distribution</h3>
+                    <ul id="customerStatusList" class="text-blue-700">
+                        <li>Loading...</li>
+                    </ul>
+                </div>
+
+                <!-- Customer Category Breakdown -->
+                <div class="bg-green-50 p-4 rounded-lg shadow-sm border border-green-200">
+                    <h3 class="text-lg font-semibold text-green-800 mb-2">Customer Category Breakdown</h3>
+                    <ul id="customerCategoryList" class="text-green-700">
+                        <li>Loading...</li>
+                    </ul>
+                </div>
+
+                <!-- Overall Activity -->
+                <div class="bg-yellow-50 p-4 rounded-lg shadow-sm border border-yellow-200">
+                    <h3 class="text-lg font-semibold text-yellow-800 mb-2">Overall Activity</h3>
+                    <p class="text-yellow-700">Total Customers: <span id="totalCustomersCount" class="font-bold">0</span></p>
+                    <p class="text-yellow-700">Total Visits Logged: <span id="totalVisitsCount" class="font-bold">0</span></p>
+                    <p class="text-yellow-700">Total Comments Added: <span id="totalCommentsCount" class="font-bold">0</span></p>
+                </div>
+            </div>
+
+            <!-- Competitor & Market Share Analysis -->
+            <div class="bg-white shadow rounded-lg p-6 mb-6 border-t border-gray-200 pt-6">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">Competitor & Market Share Analysis</h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Competitor Comparison Table -->
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">Customers per Main Competitor</h3>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Competitor Name</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Strength</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customers (Our CRM)</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Share of Our CRM (%)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="competitorComparisonTableBody" class="bg-white divide-y divide-gray-200">
+                                    <tr><td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">Loading competitor data...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Market Share by Category Table -->
+                    <div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">Market Share by Category (Our Customers)</h3>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Customers (CRM)</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Our Active Customers</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Our Active Share (%)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="marketShareTableBody" class="bg-white divide-y divide-gray-200">
+                                    <tr><td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">Loading market share data...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Salesperson Tracking Content -->
+        <div id="salesperson-tracking-content" class="tab-content bg-white shadow rounded-lg p-6 mb-6">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">Salesperson Tracking</h2>
+
+            <!-- Filters for Salesperson Tracking -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div>
+                    <label for="salespersonFilter" class="block text-sm font-medium text-gray-700 mb-1">Salesperson</label>
+                    <select id="salespersonFilter" class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        <option value="all">All Salespeople</option>
+                        <!-- Populated dynamically -->
+                    </select>
+                </div>
+                <div>
+                    <label for="visitDateRange" class="block text-sm font-medium text-gray-700 mb-1">Past Visits Date Range</label>
+                    <select id="visitDateRange" class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        <option value="all">All Time</option>
+                        <option value="last7days">Last 7 Days</option>
+                        <option value="last30days">Last 30 Days</option>
+                        <option value="thisYear">This Year</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="upcomingVisitAddressSearch" class="block text-sm font-medium text-gray-700 mb-1">Upcoming Visits Address Search</label>
+                    <input type="text" id="upcomingVisitAddressSearch" placeholder="Search address..." class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                </div>
+            </div>
+
+            <!-- Salesperson Performance Charts -->
+            <div class="mb-8 border-b border-gray-200 pb-6">
+                <h3 class="text-xl font-semibold text-gray-800 mb-3">Salesperson Performance Charts</h3>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-gray-50 p-4 rounded-lg shadow-sm border border-gray-200 chart-container">
+                        <canvas id="visitsPerSalespersonChart"></canvas>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg shadow-sm border border-gray-200 chart-container">
+                        <canvas id="visitsOverTimeChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upcoming Visits Schedule -->
+            <div class="mb-8">
+                <h3 class="text-xl font-semibold text-gray-800 mb-3">Upcoming Visits Schedule</h3>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer Name</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Address</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Next Visit Date</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Salesperson</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="upcomingVisitsTableBody" class="bg-white divide-y divide-gray-200">
+                            <tr><td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">Loading upcoming visits...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Past Visit Counts per Salesperson -->
+            <div class="mb-8">
+                <h3 class="text-xl font-semibold text-gray-800 mb-3">Past Visit Counts per Salesperson</h3>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Salesperson</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Visits</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pastVisitsCountTableBody" class="bg-white divide-y divide-gray-200">
+                            <tr><td colspan="2" class="px-6 py-4 text-center text-sm text-gray-500">Loading visit counts...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Actual Visits Log Table -->
+            <div class="mb-8 border-t border-gray-200 pt-6">
+                <h3 class="text-xl font-semibold text-gray-800 mb-3">Actual Visits Log <span id="actualVisitsCount" class="text-base font-normal text-gray-600">(Total: 0)</span></h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <!-- Salesperson filter now uses the main salespersonFilter dropdown -->
+                    <div>
+                        <label for="visitMonthFilter" class="block text-sm font-medium text-gray-700 mb-1">Month</label>
+                        <select id="visitMonthFilter" class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <option value="all">All Months</option>
+                            <option value="1">January</option>
+                            <option value="2">February</option>
+                            <option value="3">March</option>
+                            <option value="4">April</option>
+                            <option value="5">May</option>
+                            <option value="6">June</option>
+                            <option value="7">July</option>
+                            <option value="8">August</option>
+                            <option value="9">September</option>
+                            <option value="10">October</option>
+                            <option value="11">November</option>
+                            <option value="12">December</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="visitYearFilter" class="block text-sm font-medium text-gray-700 mb-1">Year</label>
+                        <select id="visitYearFilter" class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <option value="all">All Years</option>
+                            <!-- Years will be populated dynamically -->
+                        </select>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Salesperson</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Visit Date</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Details</th>
+                            </tr>
+                        </thead>
+                        <tbody id="actualVisitsTableBody" class="bg-white divide-y divide-gray-200">
+                            <tr><td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">Loading actual visits...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-8 text-center">
+            <a href="./index.html" class="inline-block bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700">Back to Main Application</a>
+        </div>
+    </main>
+
+    <script>
+        // ====================================================================================
+        // Firebase Configuration and Initialization
+        // ====================================================================================
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            apiKey: "AIzaSyAfI6u43Dy0UMV_ng1SmfKsn6eBfS3vRDk",
+            authDomain: "al-cham-sales.firebaseapp.com",
+            projectId: "al-cham-sales",
+            storageBucket: "al-cham-sales.firebasestorage.app",
+            messagingSenderId: "183937735329",
+            appId: "1:183937735329:web:26b7357781e62c070a2ee0"
+        };
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // ====================================================================================
+        // Global Variables
+        // ====================================================================================
+        let currentUser = null;
+        let allCustomers = [];
+        let allUsers = [];
+        let allCompetitors = []; // New global variable for competitors
+        let allVisits = []; // To store all visits for calculations
+
+        // Chart instances
+        let visitsPerSalespersonChartInstance = null;
+        let visitsOverTimeChartInstance = null;
+
+
+        // ====================================================================================
+        // Helper Functions
+        // ====================================================================================
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 10); // Small delay to trigger transition
+            setTimeout(() => {
+                toast.classList.remove('show');
+                toast.addEventListener('transitionend', () => toast.remove());
+            }, 3000);
+        }
+
+        function capitalizeFirstLetter(string) {
+            if (typeof string !== 'string' || string.length === 0) {
+                return '';
+            }
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            const options = { year: 'numeric', month: 'short', day: 'numeric' };
+            try {
+                // Ensure dateString is correctly parsed as UTC to avoid timezone issues
+                const date = new Date(dateString + 'T00:00:00Z'); // Append T00:00:00Z for UTC
+                return date.toLocaleDateString(undefined, options);
+            } catch (e) {
+                return dateString; // Return original if parsing fails
+            }
+        }
+
+        function getStatusClass(status) {
+            switch (status) {
+                case 'active': return 'bg-green-100 text-green-800';
+                case 'inactive': return 'bg-gray-100 text-gray-800';
+                case 'hard': return 'bg-red-100 text-red-800';
+                case 'potential': return 'bg-yellow-100 text-yellow-800';
+                default: return 'bg-gray-100 text-gray-800';
+            }
+        }
+
+        // ====================================================================================
+        // Core Page Initialization
+        // ====================================================================================
+        document.addEventListener('DOMContentLoaded', initPage);
+
+        async function initPage() {
+            // Use Firebase's onAuthStateChanged to manage user session across pages
+            auth.onAuthStateChanged(async firebaseUser => {
+                if (firebaseUser) {
+                    console.log("Authenticated Firebase User UID:", firebaseUser.uid);
+                    try {
+                        const doc = await db.collection('users').doc(firebaseUser.uid).get();
+                        if (doc.exists) {
+                            currentUser = { id: firebaseUser.uid, ...doc.data() };
+                            // User is authenticated and profile exists, proceed with page content
+                            document.getElementById('userDisplay').textContent = currentUser.fullName;
+                            document.getElementById('roleDisplay').textContent = currentUser.role === 'admin' ? 'Administrator' : 'Salesperson';
+
+                            // Check user role for access control to this page
+                            if (currentUser.role !== 'admin' && currentUser.role !== 'salesperson') {
+                                showToast("Access Denied: You do not have permission to view this page.");
+                                window.location.href = './index.html'; // Redirect if not authorized
+                                return;
+                            }
+
+                            // Attach event listeners
+                            attachEventListeners();
+
+                            // Load all necessary data from Firestore and handle errors gracefully
+                            await loadAllData(); // This function now handles its own errors
+
+                            // Populate filters and display initial data
+                            populateSalespersonFilter(); // Needs allUsers
+                            populateMonthYearFilters(); // Populate month/year filters for actual visits log
+                            displayStatistics(); // Needs allCustomers, allVisits, allComments
+                            displayCompetitorMarketShare(); // Needs allCustomers, allCompetitors
+                            displayUpcomingVisits(); // Needs allCustomers, allUsers
+                            displayPastVisitsCount(); // Needs allVisits, allUsers
+                            renderSalespersonPerformanceCharts(); // Needs allVisits, allUsers
+                            displayActualVisitsLog(); // Display actual visits log
+
+                            // Set initial active tab based on URL parameter or default
+                            const urlParams = new URLSearchParams(window.location.search);
+                            const tabParam = urlParams.get('tab');
+
+                            // Handle tab visibility and default tab based on role
+                            const statisticsTabBtn = document.getElementById('statisticsTabBtn');
+                            const statisticsContent = document.getElementById('statistics-content');
+                            
+                            // Always hide statistics tab for salespeople
+                            if (currentUser.role === 'salesperson') {
+                                statisticsTabBtn.classList.add('hidden');
+                                statisticsContent.classList.add('hidden'); // Ensure content is hidden too
+                            } else { // Admin
+                                statisticsTabBtn.classList.remove('hidden');
+                            }
+
+                            // Default to salesperson-tracking-content unless explicitly requested statistics-content
+                            // Ensure the tab is switched AFTER all data is loaded and rendered
+                            if (tabParam === 'statistics-content' && currentUser.role === 'admin') {
+                                switchTab('statistics-content');
+                            } else {
+                                switchTab('salesperson-tracking-content');
+                            }
+
+                        } else {
+                            // User exists in Auth but not Firestore profile, log out
+                            console.warn("User profile not found in Firestore for UID:", firebaseUser.uid);
+                            await auth.signOut();
+                            sessionStorage.removeItem('currentUser'); // Clear any lingering session data
+                            window.location.href = './index.html'; // Redirect to login
+                        }
+                    } catch (error) {
+                        console.error("Error fetching user profile on startup:", error);
+                        showToast("Error loading user session: " + error.message);
+                        await auth.signOut();
+                        sessionStorage.removeItem('currentUser'); // Clear any lingering session data
+                        window.location.href = './index.html'; // Redirect to login
+                    }
+                } else {
+                    // No user is signed in, redirect to login page
+                    console.log("No Firebase user authenticated. Redirecting to login.");
+                    sessionStorage.removeItem('currentUser'); // Clear any lingering session data
+                    window.location.href = './index.html';
+                }
+            });
+        }
+
+        function attachEventListeners() {
+            document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+
+            document.getElementById('statisticsTabBtn').addEventListener('click', () => switchTab('statistics-content'));
+            document.getElementById('salespersonTrackingTabBtn').addEventListener('click', () => switchTab('salesperson-tracking-content'));
+
+            document.getElementById('exportAllDataBtn').addEventListener('click', exportAllDataToCSV);
+
+            // Main salesperson filter and date range filter for the entire Salesperson Tracking tab
+            document.getElementById('salespersonFilter').addEventListener('change', () => {
+                displayUpcomingVisits();
+                displayPastVisitsCount();
+                renderSalespersonPerformanceCharts(); // Re-render charts on filter change
+                displayActualVisitsLog(); // Re-render actual visits log on salesperson filter change
+            });
+            document.getElementById('visitDateRange').addEventListener('change', () => {
+                displayPastVisitsCount();
+                renderSalespersonPerformanceCharts(); // Re-render charts on filter change
+            });
+            document.getElementById('upcomingVisitAddressSearch').addEventListener('input', displayUpcomingVisits);
+
+            // Listeners for month and year filters specifically for actual visits log
+            document.getElementById('visitMonthFilter').addEventListener('change', displayActualVisitsLog);
+            document.getElementById('visitYearFilter').addEventListener('change', displayActualVisitsLog);
+        }
+
+        async function handleLogout() {
+            await auth.signOut();
+            sessionStorage.removeItem('currentUser'); // Clear session storage
+            window.location.href = './index.html'; // Redirect to main login page
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+                tab.classList.add('hidden'); // Ensure content is hidden
+            });
+            document.getElementById(tabId).classList.remove('hidden'); // Show active content
+            document.getElementById(tabId).classList.add('active');
+
+            document.querySelectorAll('.tab-button').forEach(button => {
+                if (button.getAttribute('data-tab') === tabId) {
+                    button.classList.add('active');
+                    button.classList.remove('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
+                } else {
+                    button.classList.remove('active');
+                    button.classList.add('border-transparent', 'text-gray-500', 'hover:text-gray-700', 'hover:border-gray-300');
+                }
+            });
+        }
+
+        // ====================================================================================
+        // Data Loading from Firestore
+        // ====================================================================================
+        async function loadAllData() {
+            try {
+                // Fetch Customers
+                const customerSnapshot = await db.collection('customers').get();
+                allCustomers = [];
+                for (const doc of customerSnapshot.docs) {
+                    const customerData = { id: doc.id, ...doc.data() };
+                    // Fetch visits for each customer
+                    const visitsSnapshot = await db.collection('customers').doc(doc.id).collection('visits').get();
+                    customerData.visits = visitsSnapshot.docs.map(visitDoc => ({ id: visitDoc.id, ...visitDoc.data() }));
+
+                    // Fetch comments for each customer
+                    const commentsSnapshot = await db.collection('customers').doc(doc.id).collection('comments').get();
+                    customerData.comments = commentsSnapshot.docs.map(commentDoc => ({ id: commentDoc.id, ...commentDoc.data() }));
+
+                    allCustomers.push(customerData);
+                }
+
+                // Fetch Users (Salespeople and Admins)
+                const userSnapshot = await db.collection('users').get();
+                allUsers = userSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+                // Fetch Competitors
+                const competitorSnapshot = await db.collection('competitors').get();
+                allCompetitors = competitorSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); // Populate allCompetitors
+
+                // Flatten all visits for easier processing
+                allVisits = [];
+                for (const customer of allCustomers) {
+                    if (customer.visits) {
+                        allVisits.push(...customer.visits.map(visit => ({
+                            ...visit,
+                            customerId: customer.id,
+                            customerName: customer.name,
+                            customerAddress: customer.address
+                        })));
+                    }
+                }
+
+                showToast("Data loaded successfully!");
+            } catch (error) {
+                console.error("Error loading all data:", error);
+                showToast("Failed to load data: " + error.message);
+                // IMPORTANT: Removed `throw error;` here. This prevents logout on data loading errors.
+            }
+        }
+
+        // ====================================================================================
+        // Statistics Overview Functions
+        // ====================================================================================
+        function displayStatistics() {
+            // Customer Status Distribution
+            const statusCounts = {};
+            allCustomers.forEach(customer => {
+                const status = customer.status || 'unknown';
+                statusCounts[status] = (statusCounts[status] || 0) + 1;
+            });
+            const customerStatusList = document.getElementById('customerStatusList');
+            customerStatusList.innerHTML = '';
+            for (const status in statusCounts) {
+                const li = document.createElement('li');
+                li.textContent = `${capitalizeFirstLetter(status)}: ${statusCounts[status]}`;
+                customerStatusList.appendChild(li);
+            }
+
+            // Customer Category Breakdown
+            const categoryCounts = {};
+            allCustomers.forEach(customer => {
+                const category = customer.category || 'unknown';
+                categoryCounts[category] = (categoryCounts[category] || 0) + 1;
+            });
+            const customerCategoryList = document.getElementById('customerCategoryList');
+            customerCategoryList.innerHTML = '';
+            for (const category in categoryCounts) {
+                const li = document.createElement('li');
+                li.textContent = `${capitalizeFirstLetter(category)}: ${categoryCounts[category]}`;
+                customerCategoryList.appendChild(li);
+            }
+
+            // Overall Activity
+            document.getElementById('totalCustomersCount').textContent = allCustomers.length;
+            document.getElementById('totalVisitsCount').textContent = allVisits.length;
+            let totalComments = 0;
+            allCustomers.forEach(customer => {
+                if (customer.comments) {
+                    totalComments += customer.comments.length;
+                }
+            });
+            document.getElementById('totalCommentsCount').textContent = totalComments;
+        }
+
+        function displayCompetitorMarketShare() {
+            const competitorComparisonTableBody = document.getElementById('competitorComparisonTableBody');
+            const marketShareTableBody = document.getElementById('marketShareTableBody');
+
+            competitorComparisonTableBody.innerHTML = '';
+            marketShareTableBody.innerHTML = '';
+
+            // --- Competitor Comparison ---
+            const competitorCustomerCounts = {}; // { competitorId: count }
+            allCompetitors.forEach(comp => competitorCustomerCounts[comp.id] = 0); // Initialize all to 0
+
+            allCustomers.forEach(customer => {
+                if (customer.competitors && Array.isArray(customer.competitors)) {
+                    customer.competitors.forEach(compData => {
+                        if (competitorCustomerCounts.hasOwnProperty(compData.id)) {
+                            competitorCustomerCounts[compData.id]++;
+                        }
+                    });
+                }
+            });
+
+            const sortedCompetitors = allCompetitors.sort((a, b) => a.name.localeCompare(b.name));
+            const totalCustomersInCrm = allCustomers.length; // Total customers in our CRM
+
+            if (sortedCompetitors.length === 0) {
+                competitorComparisonTableBody.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">No competitors found.</td></tr>';
+            } else {
+                sortedCompetitors.forEach(comp => {
+                    const customersWithThisCompetitor = competitorCustomerCounts[comp.id];
+                    const shareOfOurCrm = totalCustomersInCrm > 0 ? ((customersWithThisCompetitor / totalCustomersInCrm) * 100).toFixed(2) : 0;
+
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${comp.name}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${comp.strength || 'N/A'}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${customersWithThisCompetitor}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${shareOfOurCrm}%</td>
+                    `;
+                    competitorComparisonTableBody.appendChild(row);
+                });
+            }
+
+            // --- Market Share by Category ---
+            const categories = ['paints', 'alkyde', 'cosmetics']; // Define your categories
+
+            const totalCustomersByCategoryInCrm = {}; // All customers in our CRM for this category
+            const ourActiveCustomersByCategory = {}; // Only active customers in our CRM for this category
+
+            categories.forEach(cat => {
+                totalCustomersByCategoryInCrm[cat] = 0;
+                ourActiveCustomersByCategory[cat] = 0;
+            });
+
+            allCustomers.forEach(customer => {
+                const category = customer.category?.toLowerCase();
+                if (categories.includes(category)) {
+                    totalCustomersByCategoryInCrm[category]++;
+                    if (customer.status === 'active') {
+                        ourActiveCustomersByCategory[category]++;
+                    }
+                }
+            });
+
+            if (categories.length === 0) {
+                marketShareTableBody.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">No categories defined or customers found.</td></tr>';
+            } else {
+                categories.forEach(cat => {
+                    const totalCustomersInCat = totalCustomersByCategoryInCrm[cat];
+                    const ourActiveCustomersInCat = ourActiveCustomersByCategory[cat];
+                    const ourActiveShare = totalCustomersInCat > 0 ? ((ourActiveCustomersInCat / totalCustomersInCat) * 100).toFixed(2) : 0;
+
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${capitalizeFirstLetter(cat)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${totalCustomersInCat}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${ourActiveCustomersInCat}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${ourActiveShare}%</td>
+                    `;
+                    marketShareTableBody.appendChild(row);
+                });
+            }
+        }
+
+        // ====================================================================================
+        // Salesperson Tracking Functions
+        // ====================================================================================
+        function populateSalespersonFilter() {
+            const filterDropdown = document.getElementById('salespersonFilter');
+            filterDropdown.innerHTML = '<option value="all">All Salespeople</option>'; // Reset
+            // Include both 'salesperson' and 'admin' roles for the filter
+            const salespeopleAndAdmins = allUsers.filter(user => (user.role === 'salesperson' || user.role === 'admin') && user.status === 'active');
+            salespeopleAndAdmins.forEach(sp => {
+                const option = document.createElement('option');
+                option.value = sp.id;
+                option.textContent = sp.fullName;
+                filterDropdown.appendChild(option);
+            });
+        }
+
+        function populateMonthYearFilters() {
+            const monthFilter = document.getElementById('visitMonthFilter');
+            const yearFilter = document.getElementById('visitYearFilter');
+
+            // Populate Years
+            const years = new Set();
+            allVisits.forEach(visit => {
+                if (visit.date) {
+                    years.add(new Date(visit.date).getFullYear());
+                }
+            });
+            const sortedYears = Array.from(years).sort((a, b) => b - a); // Descending order
+
+            yearFilter.innerHTML = '<option value="all">All Years</option>';
+            sortedYears.forEach(year => {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                yearFilter.appendChild(option);
+            });
+
+            // Set default year to current year if available, otherwise the latest year in data
+            const currentYear = new Date().getFullYear();
+            if (sortedYears.includes(currentYear)) {
+                yearFilter.value = currentYear;
+            } else if (sortedYears.length > 0) {
+                yearFilter.value = sortedYears[0]; // Default to the latest year available in data
+            } else {
+                yearFilter.value = 'all'; // Fallback if no years in data
+            }
+
+            // Set default month to current month
+            const currentMonth = new Date().getMonth() + 1; // getMonth is 0-indexed
+            monthFilter.value = currentMonth.toString();
+        }
+
+
+        function displayUpcomingVisits() {
+            const tableBody = document.getElementById('upcomingVisitsTableBody');
+            tableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">Loading upcoming visits...</td></tr>';
+
+            const selectedSalespersonId = document.getElementById('salespersonFilter').value;
+            const addressSearchTerm = document.getElementById('upcomingVisitAddressSearch').value.toLowerCase();
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // Normalize to start of day
+
+            let filteredUpcomingCustomers = allCustomers.filter(customer => {
+                // Filter by salesperson if selected
+                if (selectedSalespersonId !== 'all' && customer.salespersonId !== selectedSalespersonId) {
+                    return false;
+                }
+                // Filter by address search term
+                if (addressSearchTerm && !customer.address?.toLowerCase().includes(addressSearchTerm)) {
+                    return false;
+                }
+                // Include customers with a future nextVisit date OR potential customers with no nextVisit
+                if (customer.nextVisit) {
+                    const nextVisitDate = new Date(customer.nextVisit + 'T00:00:00Z');
+                    return nextVisitDate >= today;
+                } else if (customer.status === 'potential') {
+                    return true; // Potential customers without a scheduled visit
+                }
+                return false;
+            });
+
+            // Sort: sooner planned visit first, then potential customers
+            filteredUpcomingCustomers.sort((a, b) => {
+                const dateA = a.nextVisit ? new Date(a.nextVisit + 'T00:00:00Z') : (a.status === 'potential' ? new Date('2099-12-31T00:00:00Z') : new Date('2100-01-01T00:00:00Z')); // Potential customers last
+                const dateB = b.nextVisit ? new Date(b.nextVisit + 'T00:00:00Z') : (b.status === 'potential' ? new Date('2099-12-31T00:00:00Z') : new Date('2100-01-01T00:00:00Z'));
+
+                if (dateA < dateB) return -1;
+                if (dateA > dateB) return 1;
+                return 0;
+            });
+
+            tableBody.innerHTML = '';
+            if (filteredUpcomingCustomers.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">No upcoming visits or potential customers found.</td></tr>';
+                return;
+            }
+
+            filteredUpcomingCustomers.forEach(customer => {
+                const salespersonName = allUsers.find(u => u.id === customer.salespersonId)?.fullName || 'N/A';
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${customer.name || 'N/A'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${customer.address || 'N/A'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${customer.nextVisit ? formatDate(customer.nextVisit) : (customer.status === 'potential' ? 'Not Scheduled (Potential)' : 'N/A')}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${salespersonName}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${capitalizeFirstLetter(customer.status || 'N/A')}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function displayPastVisitsCount() {
+            const tableBody = document.getElementById('pastVisitsCountTableBody');
+            tableBody.innerHTML = '<tr><td colspan="2" class="px-6 py-4 text-center text-sm text-gray-500">Loading visit counts...</td></tr>';
+
+            const selectedSalespersonId = document.getElementById('salespersonFilter').value;
+            const dateRangeFilter = document.getElementById('visitDateRange').value;
+
+            const now = new Date();
+            let startDate = null;
+
+            if (dateRangeFilter === 'last7days') {
+                startDate = new Date(now);
+                startDate.setDate(now.getDate() - 7);
+            } else if (dateRangeFilter === 'last30days') {
+                startDate = new Date(now);
+                startDate.setDate(now.getDate() - 30);
+            } else if (dateRangeFilter === 'thisYear') {
+                startDate = new Date(now.getFullYear(), 0, 1); // Start of current year
+            }
+            if (startDate) startDate.setHours(0, 0, 0, 0); // Normalize to start of day
+
+            const visitCounts = {}; // { salespersonId: count }
+
+            allVisits.forEach(visit => {
+                // Filter by salesperson
+                if (selectedSalespersonId !== 'all' && visit.salespersonId !== selectedSalespersonId) {
+                    return;
+                }
+
+                // Filter by date range
+                if (startDate) {
+                    const visitDate = new Date(visit.date + 'T00:00:00Z');
+                    if (visitDate < startDate || visitDate > now) {
+                        return;
+                    }
+                }
+
+                visitCounts[visit.salespersonId] = (visitCounts[visit.salespersonId] || 0) + 1;
+            });
+
+            tableBody.innerHTML = '';
+            if (Object.keys(visitCounts).length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="2" class="px-6 py-4 text-center text-sm text-gray-500">No visits found for the selected criteria.</td></tr>';
+                return;
+            }
+
+            // Sort by salesperson name
+            const sortedSalespeople = allUsers.filter(user => (user.role === 'salesperson' || user.role === 'admin') && user.status === 'active')
+                .map(sp => ({
+                    id: sp.id,
+                    name: sp.fullName,
+                    count: visitCounts[sp.id] || 0 // Ensure count is 0 if no visits
+                }))
+                .sort((a, b) => a.name.localeCompare(b.name));
+
+            sortedSalespeople.forEach(sp => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${sp.name}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${sp.count}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function renderSalespersonPerformanceCharts() {
+            const selectedSalespersonId = document.getElementById('salespersonFilter').value;
+            const dateRangeFilter = document.getElementById('visitDateRange').value;
+
+            const now = new Date();
+            let startDate = null;
+
+            if (dateRangeFilter === 'last7days') {
+                startDate = new Date(now);
+                startDate.setDate(now.getDate() - 7);
+            } else if (dateRangeFilter === 'last30days') {
+                startDate = new Date(now);
+                startDate.setDate(now.getDate() - 30);
+            } else if (dateRangeFilter === 'thisYear') {
+                startDate = new Date(now.getFullYear(), 0, 1); // Start of current year
+            }
+            if (startDate) startDate.setHours(0, 0, 0, 0); // Normalize to start of day
+
+            // Filter visits based on selected salesperson and date range
+            const filteredVisits = allVisits.filter(visit => {
+                if (selectedSalespersonId !== 'all' && visit.salespersonId !== selectedSalespersonId) {
+                    return false;
+                }
+                if (startDate) {
+                    const visitDate = new Date(visit.date + 'T00:00:00Z');
+                    if (visitDate < startDate || visitDate > now) {
+                        return false;
+                    }
+                }
+                return true;
+            });
+
+            // --- Chart 1: Visits Per Salesperson (Bar Chart) ---
+            const visitsPerSalesperson = {};
+            // Include both 'salesperson' and 'admin' roles for the chart labels
+            allUsers.filter(user => (user.role === 'salesperson' || user.role === 'admin') && user.status === 'active').forEach(sp => {
+                visitsPerSalesperson[sp.fullName] = 0; // Initialize with all active salespeople/admins
+            });
+            filteredVisits.forEach(visit => {
+                const salespersonName = allUsers.find(u => u.id === visit.salespersonId)?.fullName || 'Unknown';
+                visitsPerSalesperson[salespersonName] = (visitsPerSalesperson[salespersonName] || 0) + 1;
+            });
+
+            const salespersonNames = Object.keys(visitsPerSalesperson).sort();
+            const visitsCounts = salespersonNames.map(name => visitsPerSalesperson[name]);
+
+            if (visitsPerSalespersonChartInstance) {
+                visitsPerSalespersonChartInstance.destroy();
+            }
+            const ctx1 = document.getElementById('visitsPerSalespersonChart').getContext('2d');
+            visitsPerSalespersonChartInstance = new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: salespersonNames,
+                    datasets: [{
+                        label: 'Total Visits',
+                        data: visitsCounts,
+                        backgroundColor: 'rgba(59, 130, 246, 0.6)', // blue-500
+                        borderColor: 'rgba(59, 130, 246, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Total Visits Per Salesperson',
+                            font: { size: 16 }
+                        },
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Number of Visits'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // --- Chart 2: Visits Over Time (Line Chart) ---
+            const visitsByMonth = {}; // { YYYY-MM: count }
+            filteredVisits.forEach(visit => {
+                const visitDate = new Date(visit.date + 'T00:00:00Z');
+                const yearMonth = `${visitDate.getFullYear()}-${(visitDate.getMonth() + 1).toString().padStart(2, '0')}`;
+                visitsByMonth[yearMonth] = (visitsByMonth[yearMonth] || 0) + 1;
+            });
+
+            const sortedMonths = Object.keys(visitsByMonth).sort();
+            const monthlyVisitsData = sortedMonths.map(month => visitsByMonth[month]);
+
+            if (visitsOverTimeChartInstance) {
+                visitsOverTimeChartInstance.destroy();
+            }
+            const ctx2 = document.getElementById('visitsOverTimeChart').getContext('2d');
+            visitsOverTimeChartInstance = new Chart(ctx2, {
+                type: 'line',
+                data: {
+                    labels: sortedMonths,
+                    datasets: [{
+                        label: 'Visits',
+                        data: monthlyVisitsData,
+                        fill: false,
+                        borderColor: 'rgba(16, 185, 129, 1)', // green-500
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Visits Over Time (Monthly)',
+                            font: { size: 16 }
+                        },
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Number of Visits'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Month'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function displayActualVisitsLog() {
+            const tableBody = document.getElementById('actualVisitsTableBody');
+            const actualVisitsCountSpan = document.getElementById('actualVisitsCount');
+            tableBody.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">Loading actual visits...</td></tr>';
+            actualVisitsCountSpan.textContent = '(Total: 0)'; // Reset count
+
+            // Use the main salesperson filter for this table
+            const selectedSalespersonId = document.getElementById('salespersonFilter').value;
+            const selectedMonth = document.getElementById('visitMonthFilter').value;
+            const selectedYear = document.getElementById('visitYearFilter').value;
+
+            let filteredVisits = allVisits.filter(visit => {
+                // Filter by salesperson
+                if (selectedSalespersonId !== 'all' && visit.salespersonId !== selectedSalespersonId) {
+                    return false;
+                }
+
+                // Filter by year
+                if (selectedYear !== 'all' && visit.date) {
+                    const visitYear = new Date(visit.date).getFullYear().toString();
+                    if (visitYear !== selectedYear) {
+                        return false;
+                    }
+                }
+
+                // Filter by month
+                if (selectedMonth !== 'all' && visit.date) {
+                    const visitMonth = (new Date(visit.date).getMonth() + 1).toString(); // getMonth is 0-indexed
+                    if (visitMonth !== selectedMonth) {
+                        return false;
+                    }
+                }
+                return true;
+            });
+
+            // Sort by date, newest first
+            filteredVisits.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+            tableBody.innerHTML = '';
+            actualVisitsCountSpan.textContent = `(Total: ${filteredVisits.length})`; // Update count
+
+            if (filteredVisits.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">No actual visits found for the selected criteria.</td></tr>';
+                return;
+            }
+
+            filteredVisits.forEach(visit => {
+                const salespersonName = allUsers.find(u => u.id === visit.salespersonId)?.fullName || 'N/A';
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${salespersonName}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${visit.customerName || 'N/A'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDate(visit.date)}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500">${visit.details || 'No details'}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+
+        // ====================================================================================
+        // Export Functions
+        // ====================================================================================
+        async function exportAllDataToCSV() {
+            if (allCustomers.length === 0) {
+                showToast("No data to export.");
+                return;
+            }
+
+            const headers = [
+                "Customer ID", "Customer Name", "Customer Status", "Customer Category", "Customer Address", "Customer Contact",
+                "Customer Latitude", "Customer Longitude", // Added lat/lng
+                "Customer Last Visit Date", "Customer Next Visit Date", "Customer Salesperson ID", "Customer Salesperson Name",
+                "Competitor 1 Name", "Competitor 1 Category", "Competitor 1 Strength", "Competitor 1 Location", "Competitor 1 Note",
+                "Competitor 2 Name", "Competitor 2 Category", "Competitor 2 Strength", "Competitor 2 Location", "Competitor 2 Note",
+                "Competitor 3 Name", "Competitor 3 Category", "Competitor 3 Strength", "Competitor 3 Location", "Competitor 3 Note",
+                // You can extend for more competitors if needed, or simplify to a single concatenated string
+                "All Comments (User: Date: Text; ...)",
+                "All Visits (Salesperson: Date: Details; ...)"
+            ];
+
+            const rows = [];
+
+            allCustomers.forEach(customer => {
+                const customerSalesperson = allUsers.find(u => u.id === customer.salespersonId);
+                const customerSalespersonName = customerSalesperson ? customerSalesperson.fullName : 'Unknown';
+
+                // Prepare competitor data for CSV columns
+                const competitorColumns = [];
+                for (let i = 0; i < 3; i++) { // Support up to 3 main competitors explicitly
+                    const compData = customer.competitors && customer.competitors[i] ? customer.competitors[i] : null;
+                    if (compData) {
+                        const competitor = allCompetitors.find(c => c.id === compData.id);
+                        if (competitor) {
+                            competitorColumns.push(
+                                competitor.name || '',
+                                competitor.category || '',
+                                competitor.strength || '',
+                                competitor.location || '',
+                                compData.note || ''
+                            );
+                        } else {
+                            competitorColumns.push('', '', '', '', ''); // Placeholder if competitor not found
+                        }
+                    } else {
+                        competitorColumns.push('', '', '', '', ''); // Empty for missing competitors
+                    }
+                }
+
+                // Concatenate all comments
+                const allCommentsText = customer.comments && customer.comments.length > 0
+                    ? customer.comments.map(c => `${c.user || 'Unknown'}: ${formatDate(c.date)}: ${c.text || ''}`).join('; ')
+                    : '';
+
+                // Concatenate all visits
+                const allVisitsText = customer.visits && customer.visits.length > 0
+                    ? customer.visits.map(v => `${v.salespersonName || 'Unknown'}: ${formatDate(v.date)}: ${v.details || ''}`).join('; ')
+                    : '';
+
+                rows.push([
+                    customer.id || '',
+                    customer.name || '',
+                    capitalizeFirstLetter(customer.status || ''),
+                    capitalizeFirstLetter(customer.category || ''),
+                    customer.address || '',
+                    customer.contact || '',
+                    customer.lat || '', // Customer Latitude
+                    customer.lng || '', // Customer Longitude
+                    customer.lastVisit || '',
+                    customer.nextVisit || '',
+                    customer.salespersonId || '',
+                    customerSalespersonName,
+                    ...competitorColumns, // Spread competitor columns
+                    allCommentsText,
+                    allVisitsText
+                ]);
+            });
+
+            let csvContent = "data:text/csv;charset=utf-8," +
+                headers.map(h => `"${h.replace(/"/g, '""')}"`).join(",") + "\n" +
+                rows.map(e => e.map(f => `"${String(f).replace(/"/g, '""')}"`).join(",")).join("\n");
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "all_crm_data.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast("All data exported to CSV.");
+        }
+    </script>
+</body>
+</html>
