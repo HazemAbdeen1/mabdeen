@@ -6,7 +6,12 @@
     <title>معمل الشام للكيماويات ادارة الزبائن</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" rel="stylesheet">
-   
+    <!-- Firebase SDKs - Using version 12.0.0 as requested -->
+    <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore-compat.js"></script>
+    <style>
+        /* Custom styles for map markers and modals */
         #map {
             height: 500px;
             width: 100%;
@@ -238,10 +243,10 @@
                         Users
                     </button>
                     <!-- New Tabs for Statistics and Salesperson Page - now external links -->
-                    <a id="statisticsLink" href="statistics.html?tab=statistics" class="tab-button whitespace-nowrap py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 hidden">
+                    <a id="statisticsLink" href="tracking_and_statistics.html?tab=statistics" class="tab-button whitespace-nowrap py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 hidden">
                         Statistics
                     </a>
-                    <a id="salespersonTrackingLink" href="statistics.html?tab=salesperson-tracking" class="tab-button whitespace-nowrap py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 hidden">
+                    <a id="salespersonTrackingLink" href="tracking_and_statistics.html?tab=salesperson-tracking" class="tab-button whitespace-nowrap py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 hidden">
                         Salesperson Tracking
                     </a>
                 </nav>
@@ -839,21 +844,33 @@
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script>
         // ====================================================================================
+        // Firebase Configuration and Initialization
+        // !!! IMPORTANT: REPLACE WITH YOUR ACTUAL FIREBASE CONFIGURATION !!!
         // ====================================================================================
-        // إعدادات الربط بالسيرفر الجديد (Evoxt Server Gateway)
-        // ====================================================================================
-        // الرابط الرئيسي المباشر للـ API الوسيط على سيرفرك الخاص لتجنب الحظر الإقليمي
-        const API_BASE_URL = "http://23.27.186.206:5000/api";
+        // Use the provided __firebase_config if available, otherwise use the hardcoded one.
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            apiKey: "AIzaSyAfI6u43Dy0UMV_ng1SmfKsn6eBfS3vRDk",
+            authDomain: "al-cham-sales.firebaseapp.com",
+            projectId: "al-cham-sales",
+            storageBucket: "al-cham-sales.firebasestorage.app",
+            messagingSenderId: "183937735329",
+            appId: "1:183937735329:web:26b7357781e62c070a2ee0"
+        };
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        // Get references to Auth and Firestore services
+        const auth = firebase.auth();
+        const db = firebase.firestore();
 
         // ====================================================================================
-        // المتغيرات العامة (Global Variables) - تم الاحتفاظ بها لضمان استقرار بقية النظام
+        // Global Variables
         // ====================================================================================
         let customers = [];
         let competitors = [];
         let users = [];
-        let currentUser = null; // سيتم تعبئته لاحقاً عند تسجيل الدخول عبر السيرفر الجديد
+        let currentUser = null;
 
-        // المتغيرات الخاصة بالخريطة والـ Leaflet
+        // Map related variables
         let map;
         let customerMarkers = [];
         let salespersonMarkers = [];
@@ -862,16 +879,16 @@
         let tempMarker = null;
         let locationWatchId = null;
 
-        // متغيرات نافذة التأكيد المخصصة (Custom Confirmation Modal)
+        // Custom Confirmation Modal variables
         let confirmCallback = null;
         let cancelCallback = null;
 
-        // متغيرات القوائم متعددة الاختيار (Multi-select)
+        // Multi-select related variables
         let newCustomerCompetitorsMultiSelectInstance = null;
         let editCustomerCompetitorsMultiSelectInstance = null;
 
         // ====================================================================================
-        // وظائف نافذة التأكيد المخصصة (Custom Confirmation Modal Functions)
+        // Custom Confirmation Modal Functions (Replaces browser's confirm())
         // ====================================================================================
         function showConfirmationModal(message, onConfirm, onCancel) {
             document.getElementById('confirmationMessage').textContent = message;
@@ -899,6 +916,7 @@
             }
             hideConfirmationModal();
         });
+
         // ====================================================================================
         // Helper Functions (Moved up for accessibility)
         // ====================================================================================
@@ -1147,166 +1165,211 @@
         }
 
 
-    
-// ====================================================================================
-        // Core Application Initialization (Evoxt Server Version)
+        // ====================================================================================
+        // Core Application Initialization
         // ====================================================================================
         document.addEventListener('DOMContentLoaded', initApp);
 
         async function initApp() {
             try {
-                // التحقق من وجود جلسة مستخدم مخزنة مسبقاً في المتصفح
-                const savedUser = sessionStorage.getItem('currentUser');
-                if (savedUser) {
-                    currentUser = JSON.parse(savedUser);
-                    showMainContent();
-                } else {
-                    // إذا لم يكن هناك مستخدم مسجل الدخول، أظهر شاشة تسجيل الدخول
-                    document.getElementById('loginScreen').style.display = 'flex';
-                    document.getElementById('mainContent').classList.add('hidden');
-                }
+                auth.onAuthStateChanged(async firebaseUser => {
+                    if (firebaseUser) {
+                        try {
+                            const doc = await db.collection('users').doc(firebaseUser.uid).get();
+                            if (doc.exists) {
+                                currentUser = { id: firebaseUser.uid, ...doc.data() };
+                                // Store user data in sessionStorage
+                                sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+                                showMainContent();
+                            } else {
+                                console.warn("User profile not found in Firestore for UID:", firebaseUser.uid);
+                                await auth.signOut();
+                                sessionStorage.removeItem('currentUser'); // Clear session storage
+                                document.getElementById('loginScreen').style.display = 'flex';
+                                document.getElementById('mainContent').classList.add('hidden');
+                                showLoginError('User profile incomplete. Please contact support.');
+                            }
+                        } catch (error) {
+                            console.error("Error fetching user profile on startup:", error);
+                            showLoginError('Error loading user session: ' + error.message);
+                            await auth.signOut();
+                            sessionStorage.removeItem('currentUser'); // Clear session storage
+                            document.getElementById('loginScreen').style.display = 'flex';
+                            document.getElementById('mainContent').classList.add('hidden');
+                        }
+                    } else {
+                        // No user is signed in, show login screen
+                        document.getElementById('loginScreen').style.display = 'flex';
+                        document.getElementById('mainContent').classList.add('hidden');
+                    }
+                });
 
-                // تفعيل مستمعات الأزرار والأحداث في الصفحة
                 attachEventListeners();
             } catch (initializationError) {
-                console.error("خطأ حرج أثناء تشغيل التطبيق:", initializationError);
-                showLoginError("فشل تشغيل التطبيق: " + initializationError.message);
+                console.error("Critical error during app initialization:", initializationError);
+                showLoginError("App failed to initialize: " + initializationError.message + ". Check console for details.");
             }
         }
 
-        // ====================================================================================
-        // ربط الأحداث بالأزرار والعناصر (Event Listeners)
-        // ====================================================================================
         function attachEventListeners() {
-            // زر تسجيل الدخول وزر الخروج
-            const loginBtn = document.getElementById('loginBtn');
-            if (loginBtn) loginBtn.addEventListener('click', handleLogin);
-            
-            const logoutBtn = document.getElementById('logoutBtn');
-            if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
+            document.getElementById('loginBtn').addEventListener('click', handleLogin);
+            document.getElementById('logoutBtn').addEventListener('click', handleLogout);
 
-            // التنقل بين علامات التبويب (Tabs)
             document.querySelectorAll('.tab-button').forEach(button => {
-                if (!button.hasAttribute('href')) {
+                if (!button.hasAttribute('href')) { // Only for internal tabs
                     button.addEventListener('click', function() {
                         switchTab(this.getAttribute('data-tab'));
                     });
                 }
             });
 
-            // أزرار الخريطة
-            const viewModeBtn = document.getElementById('viewModeBtn');
-            if (viewModeBtn) viewModeBtn.addEventListener('click', () => setMapMode('view'));
-            
-            const addModeBtn = document.getElementById('addModeBtn');
-            if (addModeBtn) addModeBtn.addEventListener('click', () => setMapMode('add'));
+            document.getElementById('viewModeBtn').addEventListener('click', () => setMapMode('view'));
+            document.getElementById('addModeBtn').addEventListener('click', () => setMapMode('add'));
 
-            const myLocationBtn = document.getElementById('myLocationBtn');
-            if (myLocationBtn) myLocationBtn.addEventListener('click', centerOnMyLocation);
+            document.getElementById('myLocationBtn').addEventListener('click', centerOnMyLocation);
 
-            // زر إضافة عميل جديد
-            const addCustomerBtn = document.getElementById('addCustomerBtn');
-            if (addCustomerBtn) {
-                addCustomerBtn.addEventListener('click', function() {
-                    document.getElementById('newCustomerName').value = '';
-                    document.getElementById('newCustomerAddress').value = '';
-                    document.getElementById('newCustomerContact').value = '';
-                    document.getElementById('newCustomerCategory').value = 'paints';
-                    document.getElementById('newCustomerStatus').value = 'active';
+            document.getElementById('addCustomerBtn').addEventListener('click', function() {
+                document.getElementById('newCustomerName').value = '';
+                document.getElementById('newCustomerAddress').value = '';
+                document.getElementById('newCustomerContact').value = '';
+                document.getElementById('newCustomerCategory').value = 'paints';
+                document.getElementById('newCustomerStatus').value = 'active';
 
-                    document.getElementById('addCustomerModal').style.display = 'flex';
-                    clickedLatLng = null;
-                    if (tempMarker) {
-                        map.removeLayer(tempMarker);
-                        tempMarker = null;
-                    }
-                });
-            }
+                if (newCustomerCompetitorsMultiSelectInstance) {
+                    newCustomerCompetitorsMultiSelectInstance.clearSelectedCompetitors();
+                } else {
+                    newCustomerCompetitorsMultiSelectInstance = setupMultiSelectDropdown(
+                        'newCustomerCompetitorsMultiSelect',
+                        'newCustomerCompetitorsOptions'
+                    );
+                }
 
-            // إغلاق النوافذ المنخفضة (Modals)
+                document.getElementById('addCustomerModal').style.display = 'flex';
+                clickedLatLng = null;
+                if (tempMarker) {
+                    map.removeLayer(tempMarker);
+                    tempMarker = null;
+                }
+            });
+
+            document.getElementById('addCompetitorBtn').addEventListener('click', function() {
+                document.getElementById('newCompetitorName').value = '';
+                document.getElementById('newCompetitorCategory').value = 'paints';
+                document.getElementById('newCompetitorStrength').value = 'High';
+                document.getElementById('newCompetitorLocation').value = '';
+                document.getElementById('addCompetitorModal').style.display = 'flex';
+            });
+
+            document.getElementById('addUserBtn').addEventListener('click', function() {
+                document.getElementById('newUserFullName').value = '';
+                document.getElementById('newUsername').value = '';
+                document.getElementById('newUserPassword').value = '';
+                document.getElementById('newUserRole').value = 'salesperson';
+                document.getElementById('newUserStatus').value = 'active';
+                document.getElementById('addUserModal').style.display = 'flex';
+            });
+
             document.querySelectorAll('.close-modal').forEach(button => {
                 button.addEventListener('click', function() {
                     this.closest('.modal').style.display = 'none';
                 });
             });
 
-            // أزرار الحفظ والتعديل للعملاء
-            const saveCustomerBtn = document.getElementById('saveCustomerBtn');
-            if (saveCustomerBtn) saveCustomerBtn.addEventListener('click', saveCustomer);
+            document.getElementById('saveCustomerBtn').addEventListener('click', saveCustomer);
+            document.getElementById('updateCustomerBtn').addEventListener('click', updateCustomer);
+            document.getElementById('addCommentBtn').addEventListener('click', addComment);
+            document.getElementById('saveCompetitorBtn').addEventListener('click', saveCompetitor);
+            document.getElementById('updateCompetitorBtn').addEventListener('click', updateCompetitor);
+            document.getElementById('saveUserBtn').addEventListener('click', saveUser);
+            document.getElementById('updateUserBtn').addEventListener('click', updateUser);
 
-            const updateCustomerBtn = document.getElementById('updateCustomerBtn');
-            if (updateCustomerBtn) updateCustomerBtn.addEventListener('click', updateCustomer);
+            document.getElementById('logNewVisitBtn').addEventListener('click', function() {
+                const customerId = document.getElementById('editCustomerId').value;
+                openLogVisitModal(customerId);
+            });
+            document.getElementById('saveVisitBtn').addEventListener('click', saveVisit);
 
-            const addCommentBtn = document.getElementById('addCommentBtn');
-            if (addCommentBtn) addCommentBtn.addEventListener('click', addComment);
+            document.getElementById('exportCustomersBtn').addEventListener('click', exportCustomersToCSV);
 
-            // أزرار الفلاتر والبحث
-            const customerStatusFilter = document.getElementById('customerStatusFilter');
-            if (customerStatusFilter) customerStatusFilter.addEventListener('change', applyCustomerFilters);
+            document.getElementById('mapStatusFilter').addEventListener('change', applyMapFilters);
+            document.getElementById('mapCategoryFilter').addEventListener('change', applyMapFilters);
+            document.getElementById('mapCompetitorFilter').addEventListener('change', applyMapFilters);
+            const showSalespeopleCheckbox = document.getElementById('showSalespeople');
+            if (showSalespeopleCheckbox) {
+                showSalespeopleCheckbox.addEventListener('change', applyMapFilters);
+            }
+            document.getElementById('customerStatusFilter').addEventListener('change', applyCustomerFilters);
+            document.getElementById('customerCategoryFilter').addEventListener('change', applyCustomerFilters);
+            document.getElementById('customerSearch').addEventListener('input', applyCustomerFilters);
+            document.getElementById('competitorCategoryFilter').addEventListener('change', applyCompetitorFilters);
+            document.getElementById('competitorSearch').addEventListener('input', applyCompetitorFilters);
+            document.getElementById('userRoleFilter').addEventListener('change', applyUserFilters);
+            document.getElementById('userSearch').addEventListener('input', applyUserFilters);
 
-            const customerCategoryFilter = document.getElementById('customerCategoryFilter');
-            if (customerCategoryFilter) customerCategoryFilter.addEventListener('change', applyCustomerFilters);
-
-            const customerSearch = document.getElementById('customerSearch');
-            if (customerSearch) customerSearch.addEventListener('input', applyCustomerFilters);
+            document.getElementById('toggleLocationBtn').addEventListener('click', toggleLocationSharing);
         }
-     // ====================================================================================
-        // Authentication Functions (Evoxt Server Version)
+
+        // ====================================================================================
+        // Authentication Functions
         // ====================================================================================
         async function handleLogin() {
-            const usernameInput = document.getElementById('username').value.trim();
-            const passwordInput = document.getElementById('password').value;
-            
-            if (!usernameInput || !passwordInput) {
-                showLoginError('الرجاء إدخال اسم المستخدم وكلمة المرور');
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            if (!username || !password) {
+                showLoginError('Please enter both email and password');
                 return;
             }
-
             try {
-                // إرسال طلب تسجيل الدخول إلى السيرفر الخاص بك
-                const response = await fetch(`${API_BASE_URL}/login`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ username: usernameInput, password: passwordInput })
-                });
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.message || 'فشل تسجيل الدخول');
+                const userCredential = await auth.signInWithEmailAndPassword(username, password);
+                const firebaseUser = userCredential.user;
+                const docRef = db.collection('users').doc(firebaseUser.uid);
+                const doc = await docRef.get();
+                if (doc.exists) {
+                    currentUser = { id: firebaseUser.uid, ...doc.data() };
+                    sessionStorage.setItem('currentUser', JSON.stringify(currentUser)); // Store in session storage
+                    showMainContent();
+                } else {
+                    console.log("Creating user profile in Firestore for UID:", firebaseUser.uid);
+                    const defaultRole = (username === 'admin@example.com') ? 'admin' : 'salesperson';
+                    const newProfile = {
+                        fullName: username.split('@')[0],
+                        username: username,
+                        role: defaultRole,
+                        status: 'active',
+                        locationSharing: false,
+                        lastLocation: null,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    };
+                    await docRef.set(newProfile);
+                    currentUser = { id: firebaseUser.uid, ...newProfile };
+                    sessionStorage.setItem('currentUser', JSON.stringify(currentUser)); // Store in session storage
+                    showMainContent();
+                    showToast("User profile created and logged in successfully!");
                 }
-
-                // تخزين بيانات المستخدم الحالي
-                currentUser = data.user; // يحتوي على { id, fullName, username, role, status }
-                sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
-                
-                showMainContent();
-                showToast("تم تسجيل الدخول بنجاح!");
-
             } catch (error) {
-                console.error("خطأ في تسجيل الدخول:", error);
-                showLoginError(error.message || 'اسم المستخدم أو كلمة المرور غير صحيحة.');
+                console.error("Login error:", error);
+                let errorMessage = "Login failed. Please try again.";
+                if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+                    errorMessage = 'Invalid email or password.';
+                } else if (error.code === 'auth/invalid-email') {
+                    errorMessage = 'Please enter a valid email address.';
+                }
+                showLoginError(errorMessage);
             }
         }
 
         function showLoginError(message) {
             const loginError = document.getElementById('loginError');
-            if (loginError) {
-                loginError.textContent = message;
-                loginError.classList.remove('hidden');
-            }
+            loginError.textContent = message;
+            loginError.classList.remove('hidden');
         }
 
         async function showMainContent() {
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('mainContent').classList.remove('hidden');
-            
-            // تحديث الواجهة ببيانات المستخدم
-            document.getElementById('userDisplay').textContent = currentUser.fullName || currentUser.username;
-            document.getElementById('userIdDisplay').textContent = `معرف المستخدم: ${currentUser.id}`;
-            document.getElementById('roleDisplay').textContent = currentUser.role === 'admin' ? 'مدير النظام' : 'مندوب مبيعات';
+            document.getElementById('userDisplay').textContent = currentUser.fullName;
+            document.getElementById('userIdDisplay').textContent = `User ID: ${currentUser.id}`;
+            document.getElementById('roleDisplay').textContent = currentUser.role === 'admin' ? 'Administrator' : 'Salesperson';
 
             const adminTab = document.getElementById('adminTab');
             const showSalespeopleContainer = document.getElementById('showSalespeopleContainer');
@@ -1314,25 +1377,25 @@
             const statisticsLink = document.getElementById('statisticsLink');
             const salespersonTrackingLink = document.getElementById('salespersonTrackingLink');
 
-            // ضبط الصلاحيات بناءً على دور المستخدم
-            if (statisticsLink) statisticsLink.classList.add('hidden');
-            if (salespersonTrackingLink) salespersonTrackingLink.classList.add('hidden');
+            // Reset visibility for all external links
+            statisticsLink.classList.add('hidden');
+            salespersonTrackingLink.classList.add('hidden');
 
             if (currentUser.role === 'admin') {
-                if (adminTab) adminTab.classList.remove('hidden');
-                if (statisticsLink) statisticsLink.classList.remove('hidden');
-                if (salespersonTrackingLink) salespersonTrackingLink.classList.remove('hidden');
+                adminTab.classList.remove('hidden');
+                statisticsLink.classList.remove('hidden'); // Admin sees Statistics
+                salespersonTrackingLink.classList.remove('hidden'); // Admin sees Salesperson Tracking
                 if (showSalespeopleContainer) showSalespeopleContainer.classList.remove('hidden');
                 if (locationSharingControls) locationSharingControls.classList.add('hidden');
-            } else {
-                if (adminTab) adminTab.classList.add('hidden');
-                if (salespersonTrackingLink) salespersonTrackingLink.classList.remove('hidden');
+            } else if (currentUser.role === 'salesperson') {
+                adminTab.classList.add('hidden');
+                // statisticsLink.classList.add('hidden'); // Salesperson does NOT see Statistics (already hidden)
+                salespersonTrackingLink.classList.remove('hidden'); // Salesperson sees Salesperson Tracking
                 if (showSalespeopleContainer) showSalespeopleContainer.classList.remove('hidden');
                 if (locationSharingControls) locationSharingControls.classList.remove('hidden');
                 updateLocationSharingButton();
             }
 
-            // تشغيل الخريطة وجلب البيانات من السيرفر
             initMap();
             await loadCompetitorTable();
             await loadCustomerTable();
@@ -1345,42 +1408,35 @@
                 navigator.geolocation.clearWatch(locationWatchId);
                 locationWatchId = null;
             }
-
-            // إذا كان يشارك موقعه، نقوم بإيقافه عبر السيرفر
             if (currentUser && currentUser.locationSharing) {
                 try {
-                    await fetch(`${API_BASE_URL}/users/${currentUser.id}/location`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ locationSharing: false, lastLocation: null })
+                    await db.collection('users').doc(currentUser.id).update({
+                        locationSharing: false,
+                        lastLocation: null
                     });
                 } catch (error) {
-                    console.error("خطأ أثناء تحديث حالة المشاركة عند الخروج:", error);
+                    console.error("Error updating locationSharing on logout:", error);
                 }
             }
-
+            await auth.signOut();
             currentUser = null;
-            sessionStorage.removeItem('currentUser');
-            
+            sessionStorage.removeItem('currentUser'); // Clear session storage on logout
             document.getElementById('mainContent').classList.add('hidden');
             document.getElementById('loginScreen').style.display = 'flex';
             document.getElementById('username').value = '';
             document.getElementById('password').value = '';
-            
-            const loginError = document.getElementById('loginError');
-            if (loginError) loginError.classList.add('hidden');
-
+            document.getElementById('loginError').classList.add('hidden');
             if (map) {
                 map.remove();
                 map = null;
                 customerMarkers = [];
                 salespersonMarkers = [];
             }
-            
             customers = [];
             competitors = [];
             users = [];
         }
+
         // ====================================================================================
         // Map Related Functions (Leaflet.js)
         // ====================================================================================
@@ -1647,8 +1703,8 @@
             });
         }
 
-     // ====================================================================================
-        // Data Management (CRUD) Functions - Evoxt Server API Integration
+        // ====================================================================================
+        // Data Management (CRUD) Functions - Firebase Firestore Integration
         // ====================================================================================
         // --- Customer Functions ---
         async function saveCustomer() {
@@ -1657,10 +1713,10 @@
             const status = document.getElementById('newCustomerStatus').value;
             const address = document.getElementById('newCustomerAddress').value.trim();
             const contact = document.getElementById('newCustomerContact').value.trim();
-            const selectedCompetitorsWithNotes = newCustomerCompetitorsMultiSelectInstance ? newCustomerCompetitorsMultiSelectInstance.getSelectedCompetitors() : [];
+            const selectedCompetitorsWithNotes = newCustomerCompetitorsMultiSelectInstance.getSelectedCompetitors();
 
             if (!name) {
-                showToast("الرجاء إدخال اسم العميل");
+                showToast("Please enter a customer name");
                 return;
             }
 
@@ -1685,23 +1741,16 @@
                 lastVisit: null,
                 nextVisit: null,
                 competitors: selectedCompetitorsWithNotes,
-                comments: [],
-                salespersonId: currentUser ? currentUser.id : 'unknown'
+                comments: [], // Comments are stored directly on the customer document
+                salespersonId: currentUser ? currentUser.id : 'unknown',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
             };
 
             try {
-                const response = await fetch(`${API_BASE_URL}/customers`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(newCustomerData)
-                });
-
-                if (!response.ok) throw new Error('فشل حفظ العميل في السيرفر');
-                
-                const savedCustomer = await response.json();
-                customers.push(savedCustomer);
-                addCustomerMarker(savedCustomer);
-                
+                const docRef = await db.collection('customers').add(newCustomerData);
+                const newCustomerWithId = { id: docRef.id, ...newCustomerData };
+                customers.push(newCustomerWithId);
+                addCustomerMarker(newCustomerWithId);
                 if (tempMarker) {
                     map.removeLayer(tempMarker);
                     tempMarker = null;
@@ -1709,17 +1758,17 @@
                 document.getElementById('addCustomerModal').style.display = 'none';
                 setMapMode('view');
                 loadCustomerTable();
-                showToast("تم إضافة العميل بنجاح");
+                showToast("Customer added successfully");
             } catch (error) {
-                console.error("خطأ في إضافة العميل:", error);
-                showToast("فشل إضافة العميل: " + error.message);
+                console.error("Error adding customer:", error);
+                showToast("Failed to add customer: " + error.message);
             }
         }
 
         function openEditCustomerModal(customerId) {
             const customer = customers.find(c => c.id === customerId);
             if (!customer) {
-                showToast("العميل غير موجود");
+                showToast("Customer not found");
                 return;
             }
 
@@ -1743,14 +1792,12 @@
 
             loadCustomerVisitsAndComments(customer);
             renderCompetitorNotes(customer.competitors || []);
-            const newCommentElem = document.getElementById('newComment');
-            if (newCommentElem) newCommentElem.value = '';
+            document.getElementById('newComment').value = '';
             document.getElementById('editCustomerModal').style.display = 'flex';
         }
 
         async function loadCustomerVisitsAndComments(customer) {
             const container = document.getElementById('customerVisitsAndComments');
-            if (!container) return;
             container.innerHTML = '';
             let allEntries = [];
 
@@ -1761,19 +1808,18 @@
             }
 
             try {
-                const response = await fetch(`${API_BASE_URL}/customers/${customer.id}/visits`);
-                if (response.ok) {
-                    const visits = await response.json();
-                    visits.forEach(visit => {
-                        allEntries.push({ type: 'visit', data: visit, timestamp: new Date(visit.date) });
-                    });
-                }
+                const visitsSnapshot = await db.collection('customers').doc(customer.id).collection('visits').get();
+                visitsSnapshot.forEach(doc => {
+                    const visit = doc.data();
+                    allEntries.push({ type: 'visit', data: {id: doc.id, ...visit}, timestamp: new Date(visit.date) });
+                });
             } catch (error) {
-                console.error("خطأ في جلب زيارات العميل:", error);
+                console.error("Error fetching customer visits:", error);
+                showToast("Failed to load customer visits.");
             }
 
             if (allEntries.length === 0) {
-                container.innerHTML = '<div class="text-sm text-gray-500 italic">لا توجد زيارات أو تعليقات بعد</div>';
+                container.innerHTML = '<div class="text-sm text-gray-500 italic">No visits or comments yet</div>';
                 return;
             }
 
@@ -1786,8 +1832,8 @@
                     html += `
                       <div class="border-l-4 border-blue-500 pl-2 mb-2">
                         <div class="flex justify-between text-xs">
-                          <span class="font-medium">تعليق بواسطة ${comment.user || 'غير معروف'}</span>
-                          <span class="text-gray-500">${comment.date || ''}</span>
+                          <span class="font-medium">Comment by ${comment.user || 'Unknown'}</span>
+                          <span class="text-gray-500">${formatDate(comment.date)}</span>
                         </div>
                         <div class="text-sm mt-1">${comment.text || ''}</div>
                       </div>
@@ -1795,14 +1841,14 @@
                 } else if (entry.type === 'visit') {
                     const visit = entry.data;
                     const deleteButtonHtml = currentUser && currentUser.role === 'admin' ?
-                        `<button class="text-red-600 hover:text-red-900 ml-2 delete-visit-btn" data-customer-id="${customer.id}" data-visit-id="${visit.id}">حذف</button>` : '';
+                        `<button class="text-red-600 hover:text-red-900 ml-2 delete-visit-btn" data-customer-id="${customer.id}" data-visit-id="${visit.id}">Delete</button>` : '';
 
                     html += `
                       <div class="border-l-4 border-green-500 pl-2 mb-2">
                         <div class="flex justify-between text-xs items-center">
-                          <span class="font-medium">زيارة بواسطة ${visit.salespersonName || 'غير معروف'}</span>
+                          <span class="font-medium">Visit by ${visit.salespersonName || 'Unknown'}</span>
                           <div>
-                            <span class="text-gray-500">${visit.date || ''}</span>
+                            <span class="text-gray-500">${formatDate(visit.date)}</span>
                             ${deleteButtonHtml}
                           </div>
                         </div>
@@ -1813,6 +1859,7 @@
             });
             container.innerHTML = html;
 
+            // Attach event listeners for delete visit buttons
             if (currentUser && currentUser.role === 'admin') {
                 document.querySelectorAll('.delete-visit-btn').forEach(button => {
                     button.addEventListener('click', function() {
@@ -1828,41 +1875,38 @@
             const customerId = document.getElementById('editCustomerId').value;
             const commentText = document.getElementById('newComment').value.trim();
             if (!commentText) {
-                showToast("الرجاء إدخال تعليق");
+                showToast("Please enter a comment");
                 return;
             }
 
-            const customer = customers.find(c => c.id === customerId);
-            if (!customer) {
-                showToast("العميل غير موجود");
+            const customerIndex = customers.findIndex(c => c.id === customerId);
+            if (customerIndex === -1) {
+                showToast("Customer not found");
                 return;
             }
+            const customer = customers[customerIndex];
 
             const newComment = {
                 text: commentText,
                 date: new Date().toISOString().split('T')[0],
-                user: currentUser ? currentUser.fullName : 'مستخدم غير معروف'
+                user: currentUser ? currentUser.fullName : 'Unknown User'
             };
 
             try {
-                const response = await fetch(`${API_BASE_URL}/customers/${customerId}/comments`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(newComment)
-                });
-
-                if (!response.ok) throw new Error('فشل حفظ التعليق');
-
-                if (!customer.comments) customer.comments = [];
+                if (!customer.comments) {
+                    customer.comments = [];
+                }
                 customer.comments.push(newComment);
-                
+                await db.collection('customers').doc(customerId).update({
+                    comments: firebase.firestore.FieldValue.arrayUnion(newComment),
+                });
                 loadCustomerVisitsAndComments(customer);
                 document.getElementById('newComment').value = '';
-                showToast("تم إضافة التعليق بنجاح");
+                showToast("Comment added successfully");
                 loadCustomerTable();
             } catch (error) {
-                console.error("خطأ في إضافة التعليق:", error);
-                showToast("فشل إضافة التعليق: " + error.message);
+                console.error("Error adding comment:", error);
+                showToast("Failed to add comment: " + error.message);
             }
         }
 
@@ -1879,11 +1923,11 @@
             const visitDetails = document.getElementById('visitDetails').value.trim();
 
             if (!visitDate || !visitDetails) {
-                showToast("الرجاء إدخال تاريخ وتفاصيل الزيارة.");
+                showToast("Please enter visit date and details.");
                 return;
             }
             if (!currentUser) {
-                showToast("يجب تسجيل الدخول لتسجيل زيارة.");
+                showToast("You must be logged in to log a visit.");
                 return;
             }
 
@@ -1891,52 +1935,50 @@
                 date: visitDate,
                 details: visitDetails,
                 salespersonId: currentUser.id,
-                salespersonName: currentUser.fullName || currentUser.username
+                salespersonName: currentUser.fullName,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
             };
 
             try {
-                const response = await fetch(`${API_BASE_URL}/customers/${customerId}/visits`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(newVisitData)
+                await db.collection('customers').doc(customerId).collection('visits').add(newVisitData);
+
+                // Update lastVisit on the customer document
+                await db.collection('customers').doc(customerId).update({
+                    lastVisit: visitDate
                 });
 
-                if (!response.ok) throw new Error('فشل حفظ الزيارة');
-
-                const customer = customers.find(c => c.id === customerId);
-                if (customer) {
-                    customer.lastVisit = visitDate;
+                const customerIndex = customers.findIndex(c => c.id === customerId);
+                if (customerIndex !== -1) {
+                    customers[customerIndex].lastVisit = visitDate;
+                    const customer = customers[customerIndex];
                     loadCustomerVisitsAndComments(customer);
                 }
 
                 document.getElementById('logVisitModal').style.display = 'none';
-                showToast("تم تسجيل الزيارة بنجاح!");
+                showToast("Visit logged successfully!");
                 loadCustomerTable();
             } catch (error) {
-                console.error("خطأ في حفظ الزيارة:", error);
-                showToast("فشل تسجيل الزيارة: " + error.message);
+                console.error("Error saving visit:", error);
+                showToast("Failed to log visit: " + error.message);
             }
         }
 
         async function deleteVisit(customerId, visitId) {
             if (!currentUser || currentUser.role !== 'admin') {
-                showToast("صلاحية مرفوضة: المدراء فقط يمكنهم حذف الزيارات.");
+                showToast("Permission denied: Only administrators can delete visits.");
                 return;
             }
-            showConfirmationModal('هل أنت متأكد من رغبتك في حذف هذه الزيارة؟', async () => {
+            showConfirmationModal('Are you sure you want to delete this visit?', async () => {
                 try {
-                    const response = await fetch(`${API_BASE_URL}/customers/${customerId}/visits/${visitId}`, {
-                        method: 'DELETE'
-                    });
-                    if (!response.ok) throw new Error('فشل الحذف من السيرفر');
-
+                    await db.collection('customers').doc(customerId).collection('visits').doc(visitId).delete();
                     const customer = customers.find(c => c.id === customerId);
-                    if (customer) loadCustomerVisitsAndComments(customer);
-                    
-                    showToast("تم حذف الزيارة بنجاح.");
+                    if (customer) {
+                        loadCustomerVisitsAndComments(customer); // Reload visits for the current customer
+                    }
+                    showToast("Visit deleted successfully.");
                 } catch (error) {
-                    console.error("خطأ في حذف الزيارة:", error);
-                    showToast("فشل حذف الزيارة: " + error.message);
+                    console.error("Error deleting visit:", error);
+                    showToast("Failed to delete visit: " + error.message);
                 }
             });
         }
@@ -1945,20 +1987,21 @@
             const customerId = document.getElementById('editCustomerId').value;
             const customerIndex = customers.findIndex(c => c.id === customerId);
             if (customerIndex === -1) {
-                showToast("العميل غير موجود");
+                showToast("Customer not found");
                 return;
             }
+            const customer = customers[customerIndex];
 
             const name = document.getElementById('editCustomerName').value.trim();
             const category = document.getElementById('editCustomerCategory').value;
             const status = document.getElementById('editCustomerStatus').value;
             const address = document.getElementById('editCustomerAddress').value.trim();
             const contact = document.getElementById('editCustomerContact').value.trim();
-            const selectedCompetitorsWithNotes = editCustomerCompetitorsMultiSelectInstance ? editCustomerCompetitorsMultiSelectInstance.getSelectedCompetitors() : [];
+            const selectedCompetitorsWithNotes = editCustomerCompetitorsMultiSelectInstance.getSelectedCompetitors();
             const nextVisit = document.getElementById('editCustomerNextVisit').value;
 
             if (!name) {
-                showToast("الرجاء إدخال اسم العميل");
+                showToast("Please enter a customer name");
                 return;
             }
 
@@ -1969,18 +2012,11 @@
                 address: address,
                 contact: contact,
                 competitors: selectedCompetitorsWithNotes,
-                nextVisit: nextVisit || null
+                nextVisit: nextVisit || null,
             };
 
             try {
-                const response = await fetch(`${API_BASE_URL}/customers/${customerId}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(updatedCustomerData)
-                });
-
-                if (!response.ok) throw new Error('فشل تحديث العميل');
-
+                await db.collection('customers').doc(customerId).update(updatedCustomerData);
                 Object.assign(customers[customerIndex], updatedCustomerData);
 
                 const markerItem = customerMarkers.find(m => m.customer.id === customerId);
@@ -1992,24 +2028,30 @@
 
                 document.getElementById('editCustomerModal').style.display = 'none';
                 loadCustomerTable();
-                showToast("تم تحديث العميل بنجاح");
+                showToast("Customer updated successfully");
             } catch (error) {
-                console.error("خطأ في تحديث العميل:", error);
-                showToast("فشل تحديث العميل: " + error.message);
+                console.error("Error updating customer:", error);
+                showToast("Failed to update customer: " + error.message);
             }
         }
 
         async function deleteCustomer(customerId) {
             if (!currentUser || currentUser.role !== 'admin') {
-                showToast("صلاحية مرفوضة: المدراء فقط يمكنهم حذف العملاء.");
+                showToast("Permission denied: Only administrators can delete customers.");
                 return;
             }
-            showConfirmationModal('هل أنت متأكد من رغبتك في حذف هذا العميل؟', async () => {
+            showConfirmationModal('Are you sure you want to delete this customer? This will also delete all associated visits.', async () => {
                 try {
-                    const response = await fetch(`${API_BASE_URL}/customers/${customerId}`, {
-                        method: 'DELETE'
+                    // Delete all visits subcollection documents first
+                    const visitsSnapshot = await db.collection('customers').doc(customerId).collection('visits').get();
+                    const batch = db.batch();
+                    visitsSnapshot.forEach(doc => {
+                        batch.delete(doc.ref);
                     });
-                    if (!response.ok) throw new Error('فشل الحذف من السيرفر');
+                    await batch.commit();
+
+                    // Then delete the customer document
+                    await db.collection('customers').doc(customerId).delete();
 
                     customers = customers.filter(c => c.id !== customerId);
                     const markerItem = customerMarkers.find(m => m.customer.id === customerId);
@@ -2018,10 +2060,10 @@
                         customerMarkers = customerMarkers.filter(m => m.customer.id !== customerId);
                     }
                     loadCustomerTable();
-                    showToast("تم حذف العميل بنجاح");
+                    showToast("Customer deleted successfully");
                 } catch (error) {
-                    console.error("خطأ في حذف العميل:", error);
-                    showToast("فشل حذف العميل: " + error.message);
+                    console.error("Error deleting customer:", error);
+                    showToast("Failed to delete customer: " + error.message);
                 }
             });
         }
@@ -2033,7 +2075,7 @@
             const strength = document.getElementById('newCompetitorStrength').value;
             const location = document.getElementById('newCompetitorLocation').value.trim();
             if (!name || !location) {
-                showToast("الرجاء تعبئة جميع الحقول المطلوبة");
+                showToast("Please fill in all required fields");
                 return;
             }
 
@@ -2043,33 +2085,30 @@
                 strength: strength,
                 location: location,
                 lat: 35.0 + (Math.random() * 2 - 1),
-                lng: 38.0 + (Math.random() * 2 - 1)
+                lng: 38.0 + (Math.random() * 2 - 1),
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
             };
 
             try {
-                const response = await fetch(`${API_BASE_URL}/competitors`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(newCompetitorData)
-                });
-                if (!response.ok) throw new Error('فشل حفظ المنافس');
-
-                const savedCompetitor = await response.json();
-                competitors.push(savedCompetitor);
+                const docRef = await db.collection('competitors').add(newCompetitorData);
+                const newCompetitorWithId = { id: docRef.id, ...newCompetitorData };
+                competitors.push(newCompetitorWithId);
                 document.getElementById('addCompetitorModal').style.display = 'none';
                 loadCompetitorTable();
                 populateCompetitorFilterDropdown();
-                showToast("تم إضافة المنافس بنجاح");
+                if (newCustomerCompetitorsMultiSelectInstance) newCustomerCompetitorsMultiSelectInstance = setupMultiSelectDropdown('newCustomerCompetitorsMultiSelect', 'newCustomerCompetitorsOptions');
+                if (editCustomerCompetitorsMultiSelectInstance) editCustomerCompetitorsMultiSelectInstance = setupMultiSelectDropdown('editCustomerCompetitorsMultiSelect', 'editCustomerCompetitorsOptions');
+                showToast("Competitor added successfully");
             } catch (error) {
-                console.error("خطأ في إضافة المنافس:", error);
-                showToast("فشل إضافة المنافس: " + error.message);
+                console.error("Error adding competitor:", error);
+                showToast("Failed to add competitor: " + error.message);
             }
         }
 
         function openEditCompetitorModal(competitorId) {
             const competitor = competitors.find(c => c.id === competitorId);
             if (!competitor) {
-                showToast("المنافس غير موجود");
+                showToast("Competitor not found");
                 return;
             }
             document.getElementById('editCompetitorId').value = competitor.id;
@@ -2084,16 +2123,17 @@
             const competitorId = document.getElementById('editCompetitorId').value;
             const competitorIndex = competitors.findIndex(c => c.id === competitorId);
             if (competitorIndex === -1) {
-                showToast("المنافس غير موجود");
+                showToast("Competitor not found");
                 return;
             }
+            const competitor = competitors[competitorIndex];
 
             const name = document.getElementById('editCompetitorName').value.trim();
             const category = document.getElementById('editCompetitorCategory').value;
             const strength = document.getElementById('editCompetitorStrength').value;
             const location = document.getElementById('editCompetitorLocation').value.trim();
             if (!name || !location) {
-                showToast("الرجاء تعبئة جميع الحقول المطلوبة");
+                showToast("Please fill in all required fields");
                 return;
             }
 
@@ -2105,51 +2145,54 @@
             };
 
             try {
-                const response = await fetch(`${API_BASE_URL}/competitors/${competitorId}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(updatedCompetitorData)
-                });
-                if (!response.ok) throw new Error('فشل تحديث المنافس');
-
+                await db.collection('competitors').doc(competitorId).update(updatedCompetitorData);
                 Object.assign(competitors[competitorIndex], updatedCompetitorData);
                 loadCompetitorTable();
                 populateCompetitorFilterDropdown();
+                if (newCustomerCompetitorsMultiSelectInstance) newCustomerCompetitorsMultiSelectInstance = setupMultiSelectDropdown('newCustomerCompetitorsMultiSelect', 'newCustomerCompetitorsOptions');
+                if (editCustomerCompetitorsMultiSelectInstance) editCustomerCompetitorsMultiSelectInstance = setupMultiSelectDropdown('editCustomerCompetitorsMultiSelect', 'editCustomerCompetitorsOptions');
                 document.getElementById('editCompetitorModal').style.display = 'none';
-                showToast("تم تحديث المنافس بنجاح");
+                showToast("Competitor updated successfully");
             } catch (error) {
-                console.error("خطأ في تحديث المنافس:", error);
-                showToast("فشل تحديث المنافس: " + error.message);
+                console.error("Error updating competitor:", error);
+                showToast("Failed to update competitor: " + error.message);
             }
         }
 
         async function deleteCompetitor(competitorId) {
             if (!currentUser || currentUser.role !== 'admin') {
-                showToast("صلاحية مرفوضة: المدراء فقط يمكنهم حذف المنافسين.");
+                showToast("Permission denied: Only administrators can delete competitors.");
                 return;
             }
-            showConfirmationModal('هل أنت متأكد من رغبتك في حذف هذا المنافس؟', async () => {
+            showConfirmationModal('Are you sure you want to delete this competitor? This will also unlink them from customers.', async () => {
                 try {
-                    const response = await fetch(`${API_BASE_URL}/competitors/${competitorId}`, {
-                        method: 'DELETE'
-                    });
-                    if (!response.ok) throw new Error('فشل الحذف من السيرفر');
-
+                    await db.collection('competitors').doc(competitorId).delete();
                     competitors = competitors.filter(c => c.id !== competitorId);
+
+                    const customersToUpdate = customers.filter(c => c.competitors && c.competitors.some(comp => comp.id === competitorId));
+                    const batch = db.batch();
+                    customersToUpdate.forEach(customer => {
+                        const customerRef = db.collection('customers').doc(customer.id);
+                        const updatedCompetitors = customer.competitors.filter(comp => comp.id !== competitorId);
+                        batch.update(customerRef, { competitors: updatedCompetitors });
+                        const localCustomer = customers.find(c => c.id === customer.id);
+                        if (localCustomer) localCustomer.competitors = updatedCompetitors;
+                    });
+                    await batch.commit();
+
                     loadCompetitorTable();
                     populateCompetitorFilterDropdown();
-                    showToast("تم حذف المنافس بنجاح.");
+                    if (newCustomerCompetitorsMultiSelectInstance) newCustomerCompetitorsMultiSelectInstance = setupMultiSelectDropdown('newCustomerCompetitorsMultiSelect', 'newCustomerCompetitorsOptions');
+                    if (editCustomerCompetitorsMultiSelectInstance) editCustomerCompetitorsMultiSelectInstance = setupMultiSelectDropdown('editCustomerCompetitorsMultiSelect', 'editCustomerCompetitorsOptions');
+                    showToast("Competitor deleted successfully. Customers unlinked.");
                 } catch (error) {
-                    console.error("خطأ في حذف المنافس:", error);
-                    showToast("فشل حذف المنافس: " + error.message);
+                    console.error("Error deleting competitor:", error);
+                    showToast("Failed to delete competitor: " + error.message);
                 }
             });
         }
 
-       // ====================================================================================
-        // User Management Functions - Evoxt Server API Integration
-        // ====================================================================================
-
+        // --- User Functions ---
         async function saveUser() {
             const fullName = document.getElementById('newUserFullName').value.trim();
             const username = document.getElementById('newUsername').value.trim();
@@ -2158,51 +2201,49 @@
             const status = document.getElementById('newUserStatus').value;
 
             if (!fullName || !username || !password) {
-                showToast("الرجاء تعبئة جميع الحقول المطلوبة");
+                showToast("Please fill in all required fields");
                 return;
             }
             if (!currentUser || currentUser.role !== 'admin') {
-                showToast("صلاحية مرفوضة: المدراء فقط يمكنهم إضافة مستخدمين.");
+                showToast("Permission denied: Only administrators can add users.");
                 return;
             }
 
-            const newUserProfile = {
-                fullName: fullName,
-                username: username,
-                password: password,
-                role: role,
-                status: status,
-                locationSharing: false,
-                lastLocation: null
-            };
-
             try {
-                const response = await fetch(`${API_BASE_URL}/users`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(newUserProfile)
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || 'فشل حفظ المستخدم في السيرفر');
-                }
-
-                const savedUser = await response.json();
-                users.push(savedUser);
+                const userCredential = await auth.createUserWithEmailAndPassword(username, password);
+                const firebaseUser = userCredential.user;
+                const newUserProfile = {
+                    fullName: fullName,
+                    username: username,
+                    role: role,
+                    status: status,
+                    locationSharing: false,
+                    lastLocation: null,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                await db.collection('users').doc(firebaseUser.uid).set(newUserProfile);
+                users.push({ id: firebaseUser.uid, ...newUserProfile });
                 loadUserTable();
                 document.getElementById('addUserModal').style.display = 'none';
-                showToast("تم إضافة المستخدم بنجاح");
+                showToast("User added successfully");
             } catch (error) {
-                console.error("خطأ في إضافة المستخدم:", error);
-                showToast("فشل إضافة المستخدم: " + error.message);
+                console.error("Error adding user:", error);
+                let errorMessage = "Failed to add user.";
+                if (error.code === 'auth/email-already-in-use') {
+                    errorMessage = "Email already in use. Please use a different email.";
+                } else if (error.code === 'auth/invalid-email') {
+                    errorMessage = "Invalid email format.";
+                } else if (error.code === 'auth/weak-password') {
+                    errorMessage = "Password is too weak. Please use at least 6 characters.";
+                }
+                showToast(errorMessage);
             }
         }
 
         function openEditUserModal(userId) {
             const user = users.find(u => u.id === userId);
             if (!user) {
-                showToast("المستخدم غير موجود");
+                showToast("User not found");
                 return;
             }
             document.getElementById('editUserId').value = user.id;
@@ -2217,20 +2258,21 @@
             const userId = document.getElementById('editUserId').value;
             const userIndex = users.findIndex(u => u.id === userId);
             if (userIndex === -1) {
-                showToast("المستخدم غير موجود");
+                showToast("User not found");
                 return;
             }
+            const user = users[userIndex];
 
             const fullName = document.getElementById('editUserFullName').value.trim();
             const role = document.getElementById('editUserRole').value;
             const status = document.getElementById('editUserStatus').value;
 
             if (!fullName) {
-                showToast("الرجاء إدخال الاسم الكامل");
+                showToast("Please enter full name");
                 return;
             }
             if (!currentUser || currentUser.role !== 'admin') {
-                showToast("صلاحية مرفوضة: المدراء فقط يمكنهم تحديث المستخدمين.");
+                showToast("Permission denied: Only administrators can update users.");
                 return;
             }
 
@@ -2241,51 +2283,38 @@
             };
 
             try {
-                const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(updatedUserData)
-                });
-
-                if (!response.ok) throw new Error('فشل تحديث المستخدم');
-
+                await db.collection('users').doc(userId).update(updatedUserData);
                 Object.assign(users[userIndex], updatedUserData);
                 loadUserTable();
                 document.getElementById('editUserModal').style.display = 'none';
-                showToast("تم تحديث المستخدم بنجاح");
+                showToast("User updated successfully");
             } catch (error) {
-                console.error("خطأ في تحديث المستخدم:", error);
-                showToast("فشل تحديث المستخدم: " + error.message);
+                console.error("Error updating user:", error);
+                showToast("Failed to update user: " + error.message);
             }
         }
 
         async function deleteUser(userId) {
             if (!currentUser || currentUser.role !== 'admin') {
-                showToast("صلاحية مرفوضة: المدراء فقط يمكنهم حذف المستخدمين.");
+                showToast("Permission denied: Only administrators can delete users.");
                 return;
             }
             if (userId === currentUser.id) {
-                showToast("لا يمكنك حذف حساب المدير الخاص بك أثناء تسجيل الدخول.");
+                showToast("Cannot delete your own admin account while logged in.");
                 return;
             }
-
-            showConfirmationModal('هل أنت متأكد من رغبتك في حذف هذا المستخدم؟ سيتم إلغاء تفعيل حسابه.', async () => {
+            showConfirmationModal('Are you sure you want to delete this user? This will deactivate their account.', async () => {
                 try {
-                    const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
-                        method: 'DELETE'
-                    });
-                    
-                    if (!response.ok) throw new Error('فشل تعطيل المستخدم من السيرفر');
-
+                    await db.collection('users').doc(userId).update({ status: 'inactive' });
                     const userIndex = users.findIndex(u => u.id === userId);
                     if (userIndex !== -1) {
                         users[userIndex].status = 'inactive';
                     }
                     loadUserTable();
-                    showToast("تم تعطيل المستخدم بنجاح.");
+                    showToast("User deactivated successfully.");
                 } catch (error) {
-                    console.error("خطأ في تعطيل المستخدم:", error);
-                    showToast("فشل تعطيل المستخدم: " + error.message);
+                    console.error("Error deactivating user:", error);
+                    showToast("Failed to deactivate user: " + error.message);
                 }
             });
         }
@@ -2594,24 +2623,22 @@
             loadUserTable();
         }
 
-     // ====================================================================================
-        // Location Sharing Functions - Evoxt Server API Integration
+        // ====================================================================================
+        // Location Sharing Functions
         // ====================================================================================
         function updateLocationSharingButton() {
             const btn = document.getElementById('toggleLocationBtn');
             const statusIndicator = document.getElementById('locationStatus');
             const statusText = document.getElementById('locationText');
 
-            if (!btn || !statusIndicator || !statusText) return;
-
             if (currentUser && currentUser.locationSharing) {
-                statusText.textContent = 'إيقاف مشاركة الموقع';
+                statusText.textContent = 'Stop Sharing Location';
                 statusIndicator.classList.remove('bg-gray-500');
                 statusIndicator.classList.add('bg-green-500');
                 btn.classList.remove('bg-gray-200', 'text-gray-700');
                 btn.classList.add('bg-red-600', 'text-white');
             } else {
-                statusText.textContent = 'مشاركة الموقع';
+                statusText.textContent = 'Share Location';
                 statusIndicator.classList.remove('bg-green-500');
                 statusIndicator.classList.add('bg-gray-500');
                 btn.classList.remove('bg-red-600', 'text-white');
@@ -2621,7 +2648,7 @@
 
         async function toggleLocationSharing() {
             if (!currentUser || currentUser.role !== 'salesperson') {
-                showToast("فقط مندوبو المبيعات يمكنهم مشاركة الموقع.");
+                showToast("Only salespeople can share location.");
                 return;
             }
 
@@ -2629,63 +2656,48 @@
                 if (locationWatchId) {
                     navigator.geolocation.clearWatch(locationWatchId);
                     locationWatchId = null;
-                    showToast("تم إيقاف مشاركة الموقع.");
+                    showToast("Location sharing stopped.");
                 }
                 currentUser.locationSharing = false;
                 currentUser.lastLocation = null;
 
                 try {
-                    const response = await fetch(`${API_BASE_URL}/users/${currentUser.id}/location`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            locationSharing: false,
-                            lastLocation: null
-                        })
+                    await db.collection('users').doc(currentUser.id).update({
+                        locationSharing: false,
+                        lastLocation: null
                     });
-
-                    if (!response.ok) throw new Error('فشل تحديث حالة الموقع في السيرفر');
-                    
                     addSalespersonMarkers();
                 } catch (error) {
-                    console.error("خطأ في إيقاف مشاركة الموقع:", error);
-                    showToast("فشل إيقاف مشاركة الموقع: " + error.message);
+                    console.error("Error stopping location sharing in Firestore:", error);
+                    showToast("Failed to stop sharing location: " + error.message);
                 }
             } else {
                 if (navigator.geolocation) {
-                    showToast("جاري بدء مشاركة الموقع...");
+                    showToast("Starting location sharing...");
                     locationWatchId = navigator.geolocation.watchPosition(
                         async (position) => {
                             const lat = position.coords.latitude;
                             const lng = position.coords.longitude;
-                            const timestamp = new Date().toISOString();
-
-                            const locationData = {
-                                lastLocation: { lat: lat, lng: lng },
-                                locationSharing: true,
-                                lastLocationUpdate: timestamp
-                            };
+                            const timestamp = firebase.firestore.FieldValue.serverTimestamp();
 
                             try {
-                                const response = await fetch(`${API_BASE_URL}/users/${currentUser.id}/location`, {
-                                    method: 'PUT',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify(locationData)
+                                await db.collection('users').doc(currentUser.id).update({
+                                    lastLocation: new firebase.firestore.GeoPoint(lat, lng),
+                                    locationSharing: true,
+                                    lastLocationUpdate: timestamp
                                 });
-
-                                if (!response.ok) throw new Error('فشل حفظ الموقع في السيرفر');
-
                                 currentUser.lastLocation = { lat: lat, lng: lng };
                                 currentUser.locationSharing = true;
                                 currentUser.lastLocationUpdate = new Date();
                                 addSalespersonMarkers();
                             } catch (error) {
-                                console.error("خطأ في تحديث الموقع عبر السيرفر:", error);
+                                console.error("Error updating location in Firestore:", error);
+                                showToast("Failed to update location: " + error.message);
                             }
                         },
                         (error) => {
-                            console.error("خطأ في تحديد الموقع الجغرافي:", error);
-                            showToast("فشل الحصول على الموقع: " + error.message);
+                            console.error("Geolocation error:", error);
+                            showToast("Failed to get location: " + error.message);
                             currentUser.locationSharing = false;
                             if (locationWatchId) {
                                 navigator.geolocation.clearWatch(locationWatchId);
@@ -2696,7 +2708,7 @@
                         { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 }
                     );
                 } else {
-                    showToast("متصفحك لا يدعم خاصية تحديد الموقع الجغرافي.");
+                    showToast("Geolocation is not supported by your browser.");
                 }
             }
             updateLocationSharingButton();
