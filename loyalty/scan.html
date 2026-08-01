@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>دهانات عابدين - معمل الشام للكيماويات</title>
-    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
     <style>
         body { font-family: Tahoma, sans-serif; background: #f4f7f6; text-align: center; padding: 30px; color: #264765; margin: 0; }
         .card { background: white; max-width: 520px; margin: 0 auto; padding: 30px; border-radius: 10px; border: 1px solid #C0C0C0; box-shadow: 0 4px 10px rgba(38,71,101,0.1); }
@@ -34,16 +33,32 @@
         <div class="box" id="formBox">
             <p style="font-weight: bold; margin-bottom: 15px; text-align: center; color: #264765;">سجل رقم هاتفك لتكون معنا في السحوبات والجوائز الفورية:</p>
 
-            <label>رقم الهاتف الأساسي:</label>
-            <input type="text" id="phoneInput" placeholder="ادخل رقم هاتفك..." oninput="checkPhoneRegistration()">
-            <div class="note">⚠️ يرجى التأكد من إدخال رقم الهاتف الصحيح ليتمكن فريقنا من التواصل معك فور فوزك بالجوائز القيمة.</div>
+            <label>رقم الهاتف الأساسي (مثال: 0999362675):</label>
+            <input type="text" id="phoneInput" placeholder="09xxxxxxxx" maxlength="10" oninput="checkPhoneRegistration()">
+            <div class="note">⚠️ يجب أن يتكون رقم الهاتف من 10 أرقام ويبدأ بـ 09 حصراً.</div>
 
             <div id="extraFields">
                 <label>الاسم الكامل:</label>
                 <input type="text" id="nameInput" placeholder="ادخل اسمك الكامل...">
 
                 <label>المدينة:</label>
-                <input type="text" id="cityInput" placeholder="ادخل مدينتك...">
+                <select id="cityInput">
+                    <option value="">اختر المدينة...</option>
+                    <option value="دمشق">دمشق</option>
+                    <option value="ريف دمشق">ريف دمشق</option>
+                    حلب<option value="حلب">حلب</option>
+                    <option value="حمص">حمص</option>
+                    <option value="حماة">حماة</option>
+                    <option value="اللاذقية">اللاذقية</option>
+                    <option value="طرطوس">طرطوس</option>
+                    <option value="درعا">درعا</option>
+                    <option value="السويداء">السويداء</option>
+                    <option value="القنيطرة">القنيطرة</option>
+                    <option value="إدلب">إدلب</option>
+                    <option value="دير الزور">دير الزور</option>
+                    <option value="الرقة">الرقة</option>
+                    <option value="الحسكة">الحسكة</option>
+                </select>
 
                 <label>الصفة:</label>
                 <select id="roleInput">
@@ -64,9 +79,8 @@
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         const token = urlParams.get('token');
+        const SERVER_URL = 'https://operate-equally-unlimited-send.trycloudflare.com';
 
-        // رابط السيرفر المباشر لاستقبال البيانات
-const SERVER_URL = 'https://operate-equally-unlimited-send.trycloudflare.com';
         if (!token) {
             document.getElementById('mainCard').innerHTML = '<h3 style="color: #d9534f;">رابط غير صالح، يرجى مسح كود الـ QR بشكل صحيح من العبوة</h3>';
         } else {
@@ -80,36 +94,27 @@ const SERVER_URL = 'https://operate-equally-unlimited-send.trycloudflare.com';
                     }
                 })
                 .catch(err => {
-                    console.error('Error:', err);
                     document.getElementById('mainCard').innerHTML = '<h3 style="color: #d9534f;">خطأ في الاتصال بالخادم، يرجى المحاولة لاحقاً</h3>';
                 });
         }
 
         async function checkPhoneRegistration() {
             const phone = document.getElementById('phoneInput').value.trim();
-            if (phone.length < 7) {
-                document.getElementById('extraFields').style.display = 'block';
+            const extraFields = document.getElementById('extraFields');
+
+            if (phone.length < 10) {
+                extraFields.style.display = 'block';
                 return;
             }
 
             try {
                 const res = await fetch(`${SERVER_URL}/api/check-user?phone=${phone}`);
                 const data = await res.json();
-                const extraFields = document.getElementById('extraFields');
                 
                 if (data.exists) {
                     extraFields.style.display = 'none';
-                    if (!document.getElementById('registeredNotice')) {
-                        const notice = document.createElement('div');
-                        notice.id = 'registeredNotice';
-                        notice.style.cssText = 'background: #e8f4fd; color: #264765; padding: 10px; border-radius: 6px; margin-bottom: 15px; font-size: 13px; font-weight: bold; border: 1px solid #349bca;';
-                        notice.innerText = '✨ أهلاً بك مجدداً! رقم هاتفك مسجل مسبقاً لدينا، يمكنك النقر مباشرة على تأكيد الكود.';
-                        formBox.insertBefore(notice, extraFields);
-                    }
                 } else {
                     extraFields.style.display = 'block';
-                    const notice = document.getElementById('registeredNotice');
-                    if (notice) notice.remove();
                 }
             } catch (err) {
                 console.error(err);
@@ -117,19 +122,22 @@ const SERVER_URL = 'https://operate-equally-unlimited-send.trycloudflare.com';
         }
 
         async function claimCode() {
-            const phone = document.getElementById('phoneInput').value.trim();
-            if (!phone) {
-                alert('الرجاء إدخال رقم الهاتف الأساسي');
+            const phone = document.getElementById('phoneInput.value') ? document.getElementById('phoneInput.value').trim() : document.getElementById('phoneInput').value.trim();
+            
+            // التحقق من صيغة الرقم (10 أرقام وتبدأ بـ 09)
+            const phoneRegex = /^09\d{8}$/;
+            if (!phoneRegex.test(phone)) {
+                alert('الرجاء إدخال رقم هاتف صحيح يتكون من 10 أرقام ويبدأ بـ 09 (مثال: 0999362675)');
                 return;
             }
 
             const extraVisible = document.getElementById('extraFields').style.display !== 'none';
-            const name = extraVisible && document.getElementById('nameInput') ? document.getElementById('nameInput').value : '';
-            const city = extraVisible && document.getElementById('cityInput') ? document.getElementById('cityInput').value : '';
-            const role = document.getElementById('roleInput') ? document.getElementById('roleInput').value : 'مقاول دهان';
+            const name = extraVisible ? document.getElementById('nameInput').value.trim() : '';
+            const city = extraVisible ? document.getElementById('cityInput').value : '';
+            const role = document.getElementById('roleInput').value;
 
             if (extraVisible && (!name || !city)) {
-                alert('الرجاء إكمال الاسم والمدينة لتسجيل الهدية');
+                alert('الرجاء إدخال الاسم الكامل واختيار المدينة من القائمة');
                 return;
             }
 
