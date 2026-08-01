@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة تحكم ERP - معمل الشام للكيماويات</title>
+    <style>
+        body { font-family: Tahoma, sans-serif; background: #f4f7f6; margin: 0; color: #264765; display: flex; height: 100vh; overflow: hidden; }
+        .sidebar { width: 260px; background: #264765; color: white; display: flex; flex-direction: column; padding: 20px; box-shadow: 4px 0 10px rgba(0,0,0,0.1); }
+        .sidebar h2 { font-size: 18px; border-bottom: 2px solid #349bca; padding-bottom: 10px; margin-top: 0; text-align: center; }
+        .sidebar a { color: #fff; text-decoration: none; padding: 12px 15px; margin: 5px 0; border-radius: 6px; transition: background 0.3s; display: block; font-weight: bold; font-size: 14px; }
+        .sidebar a:hover, .sidebar a.active { background: #349bca; }
+        
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .header { background: white; padding: 15px 30px; border-bottom: 1px solid #C0C0C0; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(38,71,101,0.05); }
+        .header h1 { font-size: 20px; margin: 0; color: #264765; }
+        
+        .content-body { flex: 1; padding: 25px; overflow-y: auto; background: #f8f9fa; }
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .erp-card { background: white; padding: 20px; border-radius: 8px; border: 1px solid #C0C0C0; box-shadow: 0 4px 10px rgba(38,71,101,0.05); display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s, box-shadow 0.2s; }
+        .erp-card:hover { transform: translateY(-3px); box-shadow: 0 6px 15px rgba(38,71,101,0.15); }
+        .erp-card h3 { margin-top: 0; color: #264765; font-size: 16px; border-bottom: 1px solid #eee; padding-bottom: 8px; }
+        .erp-card p { color: #666; font-size: 13px; line-height: 1.5; }
+        .btn { display: inline-block; background: #349bca; color: white; text-decoration: none; padding: 10px 15px; font-weight: bold; border-radius: 6px; text-align: center; margin-top: 15px; transition: background 0.3s; }
+        .btn:hover { background: #264765; }
+    </style>
+</head>
+<body>
+
+    <!-- القائمة الجانبية (Sidebar) للتحكم بالمشاريع والأقسام -->
+    <div class="sidebar">
+        <h2>نظام ERP الشامل</h2>
+        <a href="#" class="active" onclick="switchView('dashboard')">الرئيسية والمشاريع</a>
+        <a href="#" onclick="openCRM()">نظام CRM (السوق)</a>
+        <a href="#" onclick="openServerDirect()">سيرفر العمليات المحلي</a>
+    </div>
+
+    <!-- المحتوى الرئيسي -->
+    <div class="main-content">
+        <div class="header">
+            <h1 id="pageTitle">مرحباً بك، لوحة التحكم المركزية</h1>
+            <span style="font-size: 13px; color: #666;">معمل الشام للكيماويات</span>
+        </div>
+
+        <div class="content-body" id="contentBody">
+            <div class="card-grid">
+                
+                <!-- بطاقة مشروع CRM الجديد -->
+                <div class="erp-card">
+                    <div>
+                        <h3>نظام الـ CRM (الأسواق)</h3>
+                        <p>إدارة العمليات التجارية والأسواق والمتابعات الخاصة بالعملاء.</p>
+                    </div>
+                    <a href="/CRM/market" target="_blank" class="btn">فتح نظام CRM</a>
+                </div>
+
+                <!-- بطاقة سيرفر العمليات المحلي -->
+                <div class="erp-card">
+                    <div>
+                        <h3>سيرفر العمليات المحلي</h3>
+                        <p>الاتصال المباشر ببرمجيات وقواعد البيانات المسجلة على السيرفر.</p>
+                    </div>
+                    <a href="#" id="serverCardLink" target="_blank" class="btn">فتح السيرفر المحلي</a>
+                </div>
+
+                <!-- مكان مخصص لإضافة أي مشروع جديد مستقبلاً -->
+                <div class="erp-card" style="border: 2px dashed #349bca; background: #f0f8fc; display: flex; align-items: center; justify-content: center; text-align: center;">
+                    <div>
+                        <h3 style="color: #349bca; border: none;">+ مشروع جديد</h3>
+                        <p style="font-size: 12px;">يمكنك إضافة أي نظام أو رابط جديد هنا بسهولة لاحقاً.</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ضع هنا رابط سيرفرك المحلي المباشر ليتم ربطه تلقائياً من البطاقة
+        const SERVER_URL = 'http://23.27.186.206:3000';
+        document.getElementById('serverCardLink').href = SERVER_URL;
+
+        function openCRM() {
+            window.open('/CRM/market', '_blank');
+        }
+
+        function openServerDirect() {
+            window.open(SERVER_URL, '_blank');
+        }
+
+        function switchView(view) {
+            alert('أنت في لوحة التحكم الرئيسية الآن.');
+        }
+    </script>
+</body>
+</html>
