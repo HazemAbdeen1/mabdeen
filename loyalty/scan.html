@@ -65,8 +65,7 @@
         const token = urlParams.get('token');
 
         // رابط السيرفر المباشر لاستقبال البيانات
-const SERVER_URL = 'https://corsproxy.io/?http://23.27.186.206';
-        if (!token) {
+const SERVER_URL = 'https://api.allorigins.win/raw?url=http://23.27.186.206';        if (!token) {
             document.getElementById('mainCard').innerHTML = '<h3 style="color: #d9534f;">رابط غير صالح، يرجى مسح كود الـ QR بشكل صحيح من العبوة</h3>';
         } else {
             fetch(`${SERVER_URL}/api/code-details?token=${token}`)
