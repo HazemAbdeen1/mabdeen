@@ -46,7 +46,7 @@
                     <option value="">اختر المدينة...</option>
                     <option value="دمشق">دمشق</option>
                     <option value="ريف دمشق">ريف دمشق</option>
-                    حلب<option value="حلب">حلب</option>
+                    <option value="حلب">حلب</option>
                     <option value="حمص">حمص</option>
                     <option value="حماة">حماة</option>
                     <option value="اللاذقية">اللاذقية</option>
@@ -122,9 +122,8 @@
         }
 
         async function claimCode() {
-            const phone = document.getElementById('phoneInput.value') ? document.getElementById('phoneInput.value').trim() : document.getElementById('phoneInput').value.trim();
+            const phone = document.getElementById('phoneInput').value.trim();
             
-            // التحقق من صيغة الرقم (10 أرقام وتبدأ بـ 09)
             const phoneRegex = /^09\d{8}$/;
             if (!phoneRegex.test(phone)) {
                 alert('الرجاء إدخال رقم هاتف صحيح يتكون من 10 أرقام ويبدأ بـ 09 (مثال: 0999362675)');
