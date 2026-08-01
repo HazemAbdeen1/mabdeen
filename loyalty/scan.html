@@ -64,10 +64,13 @@
         const urlParams = new URLSearchParams(window.location.search);
         const token = urlParams.get('token');
 
+        // رابط السيرفر المباشر لتستقبل جيت هب البيانات منه
+        const SERVER_URL = 'http://23.27.186.206';
+
         if (!token) {
             document.getElementById('mainCard').innerHTML = '<h3 style="color: #d9534f;">رابط غير صالح، يرجى مسح كود الـ QR بشكل صحيح من العبوة</h3>';
         } else {
-            fetch(`http://23.27.186.206/api/code-details?token=${token}`)
+            fetch(`${SERVER_URL}/api/code-details?token=${token}`)
                 .then(response => response.json())
                 .then(data => {
                     if (!data.success) {
@@ -89,7 +92,7 @@
             }
 
             try {
-                const res = await fetch(`http://23.27.186.206/api/check-user?phone=${phone}`);
+                const res = await fetch(`${SERVER_URL}/api/check-user?phone=${phone}`);
                 const data = await res.json();
                 const extraFields = document.getElementById('extraFields');
                 
@@ -130,7 +133,7 @@
             }
 
             try {
-                const res = await fetch('http://23.27.186.206/api/process-scan', {
+                const res = await fetch(`${SERVER_URL}/api/process-scan`, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ token, name, phone: city ? `${phone} (${city})` : phone, role })
