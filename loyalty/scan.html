@@ -33,7 +33,7 @@
         <div class="box" id="formBox">
             <p style="font-weight: bold; margin-bottom: 15px; text-align: center; color: #264765;">سجل رقم هاتفك لتكون معنا في السحوبات والجوائز الفورية:</p>
 
-            <label>رقم الهاتف الأساسي (مثال: 0999362675):</label>
+            <label>رقم الهاتف الأساسي:</label>
             <input type="text" id="phoneInput" placeholder="09xxxxxxxx" maxlength="10" oninput="checkPhoneRegistration()">
             <div class="note">⚠️ يجب أن يتكون رقم الهاتف من 10 أرقام ويبدأ بـ 09 حصراً.</div>
 
@@ -126,7 +126,7 @@
             
             const phoneRegex = /^09\d{8}$/;
             if (!phoneRegex.test(phone)) {
-                alert('الرجاء إدخال رقم هاتف صحيح يتكون من 10 أرقام ويبدأ بـ 09 (مثال: 0999362675)');
+                alert('الرجاء إدخال رقم هاتف صحيح يتكون من 10 أرقام ويبدأ بـ 09');
                 return;
             }
 
