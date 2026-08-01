@@ -1,1 +1,163 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>دهانات عابدين - معمل الشام للكيماويات</title>
+    <style>
+        body { font-family: Tahoma, sans-serif; background: #f4f7f6; text-align: center; padding: 30px; color: #264765; margin: 0; }
+        .card { background: white; max-width: 520px; margin: 0 auto; padding: 30px; border-radius: 10px; border: 1px solid #C0C0C0; box-shadow: 0 4px 10px rgba(38,71,101,0.1); }
+        h2 { color: #264765; margin-bottom: 5px; font-size: 22px; }
+        .subtitle { font-size: 13px; color: #349bca; font-weight: bold; margin-bottom: 15px; }
+        hr { width: 60%; border: 1px solid #349bca; margin-bottom: 20px; }
+        .info { font-size: 15px; margin: 10px 0; text-align: right; background: #f8f9fa; padding: 10px 15px; border-radius: 6px; border-right: 4px solid #349bca; }
+        .box { margin-top: 20px; background: #f4f7f6; padding: 20px; border-radius: 8px; text-align: right; border: 1px solid #e2e8f0; }
+        input, select { padding: 12px; width: 100%; margin-bottom: 15px; border: 1px solid #C0C0C0; border-radius: 6px; box-sizing: border-box; font-family: Tahoma, sans-serif; font-size: 14px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 13px; color: #264765; }
+        .note { font-size: 12px; color: #c0392b; margin-bottom: 12px; font-weight: bold; line-height: 1.5; }
+        button { background: #349bca; color: white; border: none; padding: 14px 25px; font-weight: bold; cursor: pointer; border-radius: 6px; font-size: 16px; width: 100%; transition: background 0.3s; }
+        button:hover { background: #264765; }
+        .result-box { padding: 25px; border-radius: 8px; margin-top: 20px; font-size: 16px; font-weight: bold; line-height: 1.6; }
+        .winner { background: #dff0d8; color: #3c763d; border: 1px solid #d6e9c6; }
+        .loser { background: #fcf8e3; color: #8a6d3b; border: 1px solid #faebcc; }
+        .footer-brand { margin-top: 25px; font-size: 12px; color: #7f8c8d; border-top: 1px solid #eee; padding-top: 15px; }
+    </style>
+</head>
+<body>
+    <div class="card" id="mainCard">
+        <h2>مصطفى عابدين وشركاه</h2>
+        <div class="subtitle">معمل الشام للكيماويات - عراقة جودة الدهانات منذ 1954</div>
+        <hr>
+        <p class="info"><b>المنتج المكتشف:</b> <span id="productName">جاري التحميل...</span></p>
 
+        <div class="box" id="formBox">
+            <p style="font-weight: bold; margin-bottom: 15px; text-align: center; color: #264765;">سجل رقم هاتفك لتكون معنا في السحوبات والجوائز الفورية:</p>
+
+            <label>رقم الهاتف الأساسي:</label>
+            <input type="text" id="phoneInput" placeholder="ادخل رقم هاتفك..." oninput="checkPhoneRegistration()">
+            <div class="note">⚠️ يرجى التأكد من إدخال رقم الهاتف الصحيح ليتمكن فريقنا من التواصل معك فور فوزك بالجوائز القيمة.</div>
+
+            <div id="extraFields">
+                <label>الاسم الكامل:</label>
+                <input type="text" id="nameInput" placeholder="ادخل اسمك الكامل...">
+
+                <label>المدينة:</label>
+                <input type="text" id="cityInput" placeholder="ادخل مدينتك...">
+
+                <label>الصفة:</label>
+                <select id="roleInput">
+                    <option value="مقاول دهان">مقاول دهان</option>
+                    <option value="صاحب منزل">صاحب منزل</option>
+                    <option value="مهندس">مهندس</option>
+                </select>
+            </div>
+
+            <button onclick="claimCode()">تأكيد الكود والحصول على الهدية</button>
+        </div>
+
+        <div class="footer-brand">
+            <b>دهانات عابدين</b> - الجودة التي تليق بثقتكم
+        </div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+
+        if (!token) {
+            document.getElementById('mainCard').innerHTML = '<h3 style="color: #d9534f;">رابط غير صالح، يرجى مسح كود الـ QR بشكل صحيح من العبوة</h3>';
+        } else {
+            // توجيه الطلب للـ API عبر السيرفر الخلفي الأساسي لضمان جلب البيانات الصحيحة
+            fetch(`http://23.27.186.206/api/code-details?token=${token}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success) {
+                        document.getElementById('mainCard').innerHTML = `<h3 style="color: #d9534f;">${data.error}</h3>`;
+                    } else {
+                        document.getElementById('productName').innerText = `${data.code.product_name} (${data.code.brand})`;
+                    }
+                })
+                .catch(err => {
+                    console.error('Error:', err);
+                });
+        }
+
+        async function checkPhoneRegistration() {
+            const phone = document.getElementById('phoneInput').value.trim();
+            if (phone.length < 7) {
+                document.getElementById('extraFields').style.display = 'block';
+                return;
+            }
+
+            try {
+                const res = await fetch(`http://23.27.186.206/api/check-user?phone=${phone}`);
+                const data = await res.json();
+                const extraFields = document.getElementById('extraFields');
+                
+                if (data.exists) {
+                    extraFields.style.display = 'none';
+                    if (!document.getElementById('registeredNotice')) {
+                        const notice = document.createElement('div');
+                        notice.id = 'registeredNotice';
+                        notice.style.cssText = 'background: #e8f4fd; color: #264765; padding: 10px; border-radius: 6px; margin-bottom: 15px; font-size: 13px; font-weight: bold; border: 1px solid #349bca;';
+                        notice.innerText = '✨ أهلاً بك مجدداً! رقم هاتفك مسجل مسبقاً لدينا، يمكنك النقر مباشرة على تأكيد الكود.';
+                        formBox.insertBefore(notice, extraFields);
+                    }
+                } else {
+                    extraFields.style.display = 'block';
+                    const notice = document.getElementById('registeredNotice');
+                    if (notice) notice.remove();
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function claimCode() {
+            const phone = document.getElementById('phoneInput').value.trim();
+            if (!phone) {
+                alert('الرجاء إدخال رقم الهاتف الأساسي');
+                return;
+            }
+
+            const extraVisible = document.getElementById('extraFields').style.display !== 'none';
+            const name = extraVisible && document.getElementById('nameInput') ? document.getElementById('nameInput').value : '';
+            const city = extraVisible && document.getElementById('cityInput') ? document.getElementById('cityInput').value : '';
+            const role = document.getElementById('roleInput') ? document.getElementById('roleInput').value : 'مقاول دهان';
+
+            if (extraVisible && (!name || !city)) {
+                alert('الرجاء إكمال الاسم والمدينة لتسجيل الهدية');
+                return;
+            }
+
+            try {
+                const res = await fetch('http://23.27.186.206/api/process-scan', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ token, name, phone: city ? `${phone} (${city})` : phone, role })
+                });
+                const data = await res.json();
+
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+
+                const card = document.getElementById('mainCard');
+                const boxClass = data.isWinner ? 'winner' : 'loser';
+                card.innerHTML = `
+                    <h2>مصطفى عابدين وشركاه</h2>
+                    <div class="subtitle">معمل الشام للكيماويات</div>
+                    <hr>
+                    <div class="result-box ${boxClass}">
+                        <p>${data.message}</p>
+                    </div>
+                    <p style="margin-top: 20px; font-size: 13px; color: #555;">شكراً لثقتكم بمنتجاتنا الأصلية.</p>
+                `;
+            } catch (err) {
+                alert('حدث خطأ في الاتصال بالخادم');
+            }
+        }
+    </script>
+</body>
+</html>
