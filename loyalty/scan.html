@@ -64,7 +64,7 @@
         const urlParams = new URLSearchParams(window.location.search);
         const token = urlParams.get('token');
 
-        // رابط السيرفر المباشر لتستقبل جيت هب البيانات منه
+        // رابط السيرفر المباشر لاستقبال البيانات
         const SERVER_URL = 'http://23.27.186.206';
 
         if (!token) {
@@ -81,6 +81,7 @@
                 })
                 .catch(err => {
                     console.error('Error:', err);
+                    document.getElementById('mainCard').innerHTML = '<h3 style="color: #d9534f;">خطأ في الاتصال بالخادم، يرجى المحاولة لاحقاً</h3>';
                 });
         }
 
